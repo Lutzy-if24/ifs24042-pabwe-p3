@@ -1,0 +1,26 @@
+# Padu — Buku Catatan Digital
+
+Nama: LUTSYY
+NIM: 11S24042
+
+Studi kasus praktikum PABWE: aplikasi satu halaman dengan tiga fitur yang dipisahkan lewat tab.
+
+## Fitur
+1. **Catatan Pengeluaran Harian** — CRUD transaksi (judul, kategori, jumlah, tipe, tanggal), ringkasan saldo, pencarian/filter/sorting, tersimpan di `localStorage` (`padu_expenses`).
+2. **Tautan Tersimpan (Bookmark Manager)** — CRUD tautan dengan validasi URL (`http://`/`https://`), kategori & catatan, pencarian/sorting, tersimpan di `localStorage` (`padu_bookmarks`).
+3. **Kuis Kilat** — 6 soal pilihan ganda dasar web (5 diambil acak tiap sesi), skor per sesi, dan skor tertinggi tersimpan di `localStorage` (`padu_quiz_highscore`).
+
+Tab terakhir yang dibuka diingat lewat **query string URL** (`?tab=expense|bookmark|quiz`), bukan `localStorage` — jadi tab bisa langsung dituju atau dibagikan lewat link, dan tombol back/forward browser juga berfungsi.
+
+## Struktur
+```
+11s24042-pabwe-p3/
+├── index.html
+├── assets/
+│   ├── script.js
+│   └── img/
+└── README.md
+```
+
+## Cara menjalankan
+Buka `index.html` langsung di browser, atau jalankan lewat live server apa pun (tidak butuh backend).
