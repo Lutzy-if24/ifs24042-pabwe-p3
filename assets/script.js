@@ -12,13 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
    * 1. INTEGRASI TAB BERBASIS QUERY URL (?tab=...)
    * ================================================================== */
   const VALID_TABS = ['expense', 'bookmark', 'quiz'];
+  const TAB_STORAGE_KEY = 'pabwe_active_tab'; // tab terakhir yang dibuka
   const tabLinks = document.querySelectorAll('.tab-link');
   const tabPanels = document.querySelectorAll('.tab-panel');
 
-  function getActiveTabFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    const tabParam = params.get('tab');
-    return VALID_TABS.includes(tabParam) ? tabParam : 'expense';
+  // Prioritas: ?tab= di URL -> tab terakhir di localStorage -> default 'expense'
+  function getInitialTab() {
+    const tabParam = new URLSearchParams(window.location.search).get('tab');
+    if (VALID_TABS.includes(tabParam)) return tabParam;
+    const saved = safeGet(TAB_STORAGE_KEY);
+    return VALID_TABS.includes(saved) ? saved : 'expense';
   }
 
   function renderActiveTab(tabKey, updateURL = true) {
@@ -35,15 +38,17 @@ document.addEventListener('DOMContentLoaded', () => {
     tabLinks.forEach(link => {
       const isTarget = link.getAttribute('data-tab') === tabKey;
       if (isTarget) {
-        link.classList.add('bg-white', 'text-indigo-700', 'shadow-xs');
+        link.classList.add('bg-white', 'text-indigo-700', 'shadow-sm');
         link.classList.remove('text-slate-700');
         link.setAttribute('aria-current', 'page');
       } else {
-        link.classList.remove('bg-white', 'text-indigo-700', 'shadow-xs');
+        link.classList.remove('bg-white', 'text-indigo-700', 'shadow-sm');
         link.classList.add('text-slate-700');
         link.removeAttribute('aria-current');
       }
     });
+
+    safeSet(TAB_STORAGE_KEY, tabKey); // ingat tab terakhir
 
     if (updateURL) {
       const url = new URL(window.location.href);
@@ -61,10 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('popstate', () => {
-    renderActiveTab(getActiveTabFromURL(), false);
+    renderActiveTab(getInitialTab(), false);
   });
 
-  renderActiveTab(getActiveTabFromURL(), false);
+  renderActiveTab(getInitialTab(), true);
 
 
   /* ==================================================================
@@ -77,19 +82,44 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnProceedDelete = document.getElementById('btn-proceed-delete');
   let confirmCallback = null;
 
+  let lastFocusedEl = null;
+
+  function openModal(modal, focusTarget) {
+    lastFocusedEl = document.activeElement;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    modal.setAttribute('aria-hidden', 'false');
+    if (focusTarget) focusTarget.focus();
+  }
+
+  function closeModal(modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    modal.setAttribute('aria-hidden', 'true');
+    if (lastFocusedEl && document.contains(lastFocusedEl)) lastFocusedEl.focus();
+  }
+
   function showDeleteModal(title, message, onConfirm) {
     deleteModalTitle.textContent = title;
     deleteModalDesc.textContent = message;
     confirmCallback = onConfirm;
-    deleteModal.style.display = 'flex';
-    deleteModal.setAttribute('aria-hidden', 'false');
+    openModal(deleteModal, btnCancelDelete);
   }
 
   function hideDeleteModal() {
-    deleteModal.style.display = 'none';
-    deleteModal.setAttribute('aria-hidden', 'true');
+    closeModal(deleteModal);
     confirmCallback = null;
   }
+
+  // Tutup modal dengan tombol Escape atau klik area gelap di luar kotak modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('[role="dialog"]:not(.hidden)').forEach(closeModal);
+    }
+  });
+  document.querySelectorAll('[role="dialog"]').forEach(m => {
+    m.addEventListener('click', (e) => { if (e.target === m) closeModal(m); });
+  });
 
   btnCancelDelete.addEventListener('click', hideDeleteModal);
 
@@ -106,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * Storage: pabwe_expense_records
    * ================================================================== */
   const EXPENSE_STORAGE_KEY = 'pabwe_expense_records';
-  let expenses = JSON.parse(localStorage.getItem(EXPENSE_STORAGE_KEY)) || [
+  let expenses = loadList(EXPENSE_STORAGE_KEY, [
     {
       id: 'exp-101',
       title: 'Honor Asisten Laboratorium',
@@ -123,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'Pendidikan',
       date: '2025-02-03'
     }
-  ];
+  ]);
 
   const formAddExpense = document.getElementById('form-add-expense');
   const expenseTitleInput = document.getElementById('expense-title');
@@ -135,9 +165,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const expenseSearchInput = document.getElementById('expense-search');
   const expenseFilterType = document.getElementById('expense-filter-type');
+  const expenseFilterCategory = document.getElementById('expense-filter-category');
   const expenseSortSelect = document.getElementById('expense-sort');
   const expenseListContainer = document.getElementById('expense-list-container');
   const expenseEmptyState = document.getElementById('expense-empty-state');
+  const expenseEmptyTitle = document.getElementById('expense-empty-title');
+  const expenseEmptyDesc = document.getElementById('expense-empty-desc');
 
   const statIncomeEl = document.getElementById('stat-income');
   const statExpenseEl = document.getElementById('stat-expense');
@@ -153,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const editExpenseDate = document.getElementById('edit-expense-date');
   const btnCloseEditExpense = document.getElementById('btn-close-edit-expense');
   const btnCancelEditExpense = document.getElementById('btn-cancel-edit-expense');
+  const editExpenseError = document.getElementById('edit-expense-error');
 
   function formatIDR(amount) {
     return new Intl.NumberFormat('id-ID', {
@@ -169,11 +203,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (expenseDateInput) {
-    expenseDateInput.value = new Date().toISOString().split('T')[0];
+    expenseDateInput.value = todayISO();
   }
 
   function saveExpenseData() {
-    localStorage.setItem(EXPENSE_STORAGE_KEY, JSON.stringify(expenses));
+    safeSet(EXPENSE_STORAGE_KEY, JSON.stringify(expenses));
   }
 
   function updateExpenseCalculations() {
@@ -204,12 +238,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderExpenses() {
     const keyword = expenseSearchInput.value.trim().toLowerCase();
     const typeFilter = expenseFilterType.value;
+    const catFilter = expenseFilterCategory.value;
     const sortVal = expenseSortSelect.value;
 
     let filtered = expenses.filter(item => {
-      const matchKeyword = item.title.toLowerCase().includes(keyword) || item.category.toLowerCase().includes(keyword);
+      const matchKeyword = item.title.toLowerCase().includes(keyword); // cari berdasarkan judul
       const matchType = typeFilter === 'all' || item.type === typeFilter;
-      return matchKeyword && matchType;
+      const matchCat = catFilter === 'all' || item.category === catFilter;
+      return matchKeyword && matchType && matchCat;
     });
 
     filtered.sort((a, b) => {
@@ -223,6 +259,11 @@ document.addEventListener('DOMContentLoaded', () => {
     expenseListContainer.innerHTML = '';
 
     if (filtered.length === 0) {
+      const noData = expenses.length === 0;
+      expenseEmptyTitle.textContent = noData ? 'Belum Ada Transaksi' : 'Transaksi Tidak Ditemukan';
+      expenseEmptyDesc.textContent = noData
+        ? 'Catat transaksi pemasukan atau pengeluaran pertama Anda melalui formulir di samping.'
+        : 'Coba ubah kata kunci pencarian atau filter yang dipilih.';
       expenseEmptyState.classList.remove('hidden');
     } else {
       expenseEmptyState.classList.add('hidden');
@@ -250,10 +291,10 @@ document.addEventListener('DOMContentLoaded', () => {
               ${isIncome ? '+' : '-'} ${formatIDR(item.amount)}
             </span>
             <div class="flex items-center gap-1">
-              <button data-id="${item.id}" aria-label="Ubah transaksi ${escapeString(item.title)}" class="btn-edit-expense p-1.5 text-slate-600 hover:text-indigo-700 transition">
+              <button data-id="${escapeString(item.id)}" aria-label="Ubah transaksi ${escapeString(item.title)}" class="btn-edit-expense p-1.5 text-slate-600 hover:text-indigo-700 transition">
                 <i class="ti ti-edit text-base" aria-hidden="true"></i>
               </button>
-              <button data-id="${item.id}" aria-label="Hapus transaksi ${escapeString(item.title)}" class="btn-del-expense p-1.5 text-slate-600 hover:text-rose-700 transition">
+              <button data-id="${escapeString(item.id)}" aria-label="Hapus transaksi ${escapeString(item.title)}" class="btn-del-expense p-1.5 text-slate-600 hover:text-rose-700 transition">
                 <i class="ti ti-trash text-base" aria-hidden="true"></i>
               </button>
             </div>
@@ -264,39 +305,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateExpenseCalculations();
-    attachExpenseEvents();
   }
 
-  function attachExpenseEvents() {
-    document.querySelectorAll('.btn-edit-expense').forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.getAttribute('data-id');
-        const target = expenses.find(x => x.id === id);
-        if (!target) return;
+  // Event delegation: satu listener untuk semua tombol Ubah/Hapus di daftar
+  expenseListContainer.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-id]');
+    if (!btn) return;
+    const id = btn.dataset.id;
 
-        editExpenseId.value = target.id;
-        editExpenseTitle.value = target.title;
-        editExpenseType.value = target.type;
-        editExpenseAmount.value = target.amount;
-        editExpenseCategory.value = target.category;
-        editExpenseDate.value = target.date;
-
-        modalEditExpense.style.display = 'flex';
-        modalEditExpense.setAttribute('aria-hidden', 'false');
-      };
-    });
-
-    document.querySelectorAll('.btn-del-expense').forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.getAttribute('data-id');
-        showDeleteModal('Hapus Catatan Transaksi?', 'Data transaksi ini akan dihapus secara permanen.', () => {
-          expenses = expenses.filter(x => x.id !== id);
-          saveExpenseData();
-          renderExpenses();
-        });
-      };
-    });
-  }
+    if (btn.classList.contains('btn-edit-expense')) {
+      const target = expenses.find(x => x.id === id);
+      if (!target) return;
+      editExpenseId.value = target.id;
+      editExpenseTitle.value = target.title;
+      editExpenseType.value = target.type;
+      editExpenseAmount.value = target.amount;
+      editExpenseCategory.value = target.category;
+      editExpenseDate.value = target.date;
+      editExpenseError.classList.add('hidden');
+      openModal(modalEditExpense, editExpenseTitle);
+    } else if (btn.classList.contains('btn-del-expense')) {
+      showDeleteModal('Hapus Catatan Transaksi?', 'Data transaksi ini akan dihapus secara permanen.', () => {
+        expenses = expenses.filter(x => x.id !== id);
+        saveExpenseData();
+        renderExpenses();
+      });
+    }
+  });
 
   formAddExpense.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -310,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showErrorNotice(expenseFormError, 'Keterangan transaksi tidak boleh kosong.');
       return;
     }
-    if (!amount || isNaN(amount) || amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
       showErrorNotice(expenseFormError, 'Nominal harus angka valid dan lebih dari 0.');
       return;
     }
@@ -336,12 +371,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     expenseTitleInput.value = '';
     expenseAmountInput.value = '';
-    expenseDateInput.value = new Date().toISOString().split('T')[0];
+    expenseDateInput.value = todayISO();
   });
 
   function closeExpenseEdit() {
-    modalEditExpense.style.display = 'none';
-    modalEditExpense.setAttribute('aria-hidden', 'true');
+    closeModal(modalEditExpense);
   }
 
   btnCloseEditExpense.addEventListener('click', closeExpenseEdit);
@@ -356,7 +390,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const category = editExpenseCategory.value;
     const date = editExpenseDate.value;
 
-    if (!title || amount <= 0 || !date) return;
+    if (!title) { showErrorNotice(editExpenseError, 'Judul transaksi tidak boleh kosong.'); return; }
+    if (!Number.isFinite(amount) || amount <= 0) { showErrorNotice(editExpenseError, 'Jumlah harus angka valid dan lebih dari 0.'); return; }
+    if (!date) { showErrorNotice(editExpenseError, 'Tanggal transaksi harus diisi.'); return; }
+    editExpenseError.classList.add('hidden');
 
     expenses = expenses.map(item => {
       if (item.id === id) {
@@ -372,6 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   expenseSearchInput.addEventListener('input', renderExpenses);
   expenseFilterType.addEventListener('change', renderExpenses);
+  expenseFilterCategory.addEventListener('change', renderExpenses);
   expenseSortSelect.addEventListener('change', renderExpenses);
 
 
@@ -380,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * Storage: pabwe_bookmark_vault
    * ================================================================== */
   const BM_STORAGE_KEY = 'pabwe_bookmark_vault';
-  let bookmarks = JSON.parse(localStorage.getItem(BM_STORAGE_KEY)) || [
+  let bookmarks = loadList(BM_STORAGE_KEY, [
     {
       id: 'bm-101',
       title: 'MDN Web Docs (JavaScript Guide)',
@@ -395,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
       category: 'Framework',
       notes: 'Cheat sheet utilitas CSS responsif.'
     }
-  ];
+  ]);
 
   const formAddBm = document.getElementById('form-add-bookmark');
   const bmTitleInput = document.getElementById('bm-title');
@@ -408,6 +446,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const bmSortSelect = document.getElementById('bm-sort');
   const bmCardsContainer = document.getElementById('bm-cards-container');
   const bmEmptyState = document.getElementById('bm-empty-state');
+  const bmEmptyTitle = document.getElementById('bm-empty-title');
+  const bmEmptyDesc = document.getElementById('bm-empty-desc');
 
   const modalEditBm = document.getElementById('modal-edit-bm');
   const formEditBm = document.getElementById('form-edit-bm');
@@ -418,14 +458,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const editBmNotes = document.getElementById('edit-bm-notes');
   const btnCloseEditBm = document.getElementById('btn-close-edit-bm');
   const btnCancelEditBm = document.getElementById('btn-cancel-edit-bm');
+  const editBmError = document.getElementById('edit-bm-error');
 
   function saveBookmarkData() {
-    localStorage.setItem(BM_STORAGE_KEY, JSON.stringify(bookmarks));
+    safeSet(BM_STORAGE_KEY, JSON.stringify(bookmarks));
   }
 
   function checkValidUrl(str) {
-    const urlPattern = /^(https?:\/\/).+/i;
-    return urlPattern.test(str);
+    // Wajib diawali http:// atau https:// dan harus bisa di-parse sebagai URL
+    if (!/^https?:\/\//i.test(str)) return false;
+    try {
+      const u = new URL(str);
+      return (u.protocol === 'http:' || u.protocol === 'https:') && u.hostname.length > 0;
+    } catch (err) {
+      return false;
+    }
   }
 
   function renderBookmarks() {
@@ -449,13 +496,18 @@ document.addEventListener('DOMContentLoaded', () => {
     bmCardsContainer.innerHTML = '';
 
     if (filtered.length === 0) {
+      const noData = bookmarks.length === 0;
+      bmEmptyTitle.textContent = noData ? 'Belum Ada Tautan Tersimpan' : 'Tautan Tidak Ditemukan';
+      bmEmptyDesc.textContent = noData
+        ? 'Kumpulkan referensi URL bermanfaat Anda melalui formulir di sebelah kiri.'
+        : 'Coba ubah kata kunci pencarian Anda.';
       bmEmptyState.classList.remove('hidden');
     } else {
       bmEmptyState.classList.add('hidden');
 
       filtered.forEach(bm => {
         const card = document.createElement('div');
-        card.className = 'bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-slate-300 transition flex flex-col justify-between';
+        card.className = 'bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition flex flex-col justify-between';
         card.innerHTML = `
           <div class="space-y-2">
             <div class="flex items-start justify-between gap-2">
@@ -463,17 +515,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${escapeString(bm.category)}
               </span>
               <div class="flex items-center gap-1">
-                <button data-id="${bm.id}" aria-label="Ubah bookmark ${escapeString(bm.title)}" class="btn-edit-bm p-1.5 text-slate-600 hover:text-indigo-700 transition">
+                <button data-id="${escapeString(bm.id)}" aria-label="Ubah bookmark ${escapeString(bm.title)}" class="btn-edit-bm p-1.5 text-slate-600 hover:text-indigo-700 transition">
                   <i class="ti ti-edit text-base" aria-hidden="true"></i>
                 </button>
-                <button data-id="${bm.id}" aria-label="Hapus bookmark ${escapeString(bm.title)}" class="btn-del-bm p-1.5 text-slate-600 hover:text-rose-700 transition">
+                <button data-id="${escapeString(bm.id)}" aria-label="Hapus bookmark ${escapeString(bm.title)}" class="btn-del-bm p-1.5 text-slate-600 hover:text-rose-700 transition">
                   <i class="ti ti-trash text-base" aria-hidden="true"></i>
                 </button>
               </div>
             </div>
 
             <!-- Ganti h4 menjadi h3 terstruktur agar heading-order Axe lolos 100% -->
-            <h3 class="text-sm font-bold text-slate-900 line-clamp-1">${escapeString(bm.title)}</h3>
+            <h3 class="text-sm font-bold text-slate-900 line-clamp-1"><a href="${escapeString(bm.url)}" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-700 hover:underline">${escapeString(bm.title)}</a></h3>
 
             <a href="${escapeString(bm.url)}" target="_blank" rel="noopener noreferrer" aria-label="Buka tautan ${escapeString(bm.title)} di jendela baru" class="inline-flex items-center gap-1.5 text-xs text-indigo-700 hover:underline font-semibold break-all">
               <i class="ti ti-external-link text-xs" aria-hidden="true"></i>
@@ -487,38 +539,32 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    attachBookmarkEvents();
   }
 
-  function attachBookmarkEvents() {
-    document.querySelectorAll('.btn-edit-bm').forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.getAttribute('data-id');
-        const target = bookmarks.find(b => b.id === id);
-        if (!target) return;
+  // Event delegation untuk tombol Ubah/Hapus bookmark
+  bmCardsContainer.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-id]');
+    if (!btn) return;
+    const id = btn.dataset.id;
 
-        editBmId.value = target.id;
-        editBmTitle.value = target.title;
-        editBmUrl.value = target.url;
-        editBmCategory.value = target.category;
-        editBmNotes.value = target.notes || '';
-
-        modalEditBm.style.display = 'flex';
-        modalEditBm.setAttribute('aria-hidden', 'false');
-      };
-    });
-
-    document.querySelectorAll('.btn-del-bm').forEach(btn => {
-      btn.onclick = () => {
-        const id = btn.getAttribute('data-id');
-        showDeleteModal('Hapus Bookmark Ini?', 'Tautan yang Anda simpan akan dihapus secara permanen.', () => {
-          bookmarks = bookmarks.filter(b => b.id !== id);
-          saveBookmarkData();
-          renderBookmarks();
-        });
-      };
-    });
-  }
+    if (btn.classList.contains('btn-edit-bm')) {
+      const target = bookmarks.find(b => b.id === id);
+      if (!target) return;
+      editBmId.value = target.id;
+      editBmTitle.value = target.title;
+      editBmUrl.value = target.url;
+      editBmCategory.value = target.category;
+      editBmNotes.value = target.notes || '';
+      editBmError.classList.add('hidden');
+      openModal(modalEditBm, editBmTitle);
+    } else if (btn.classList.contains('btn-del-bm')) {
+      showDeleteModal('Hapus Bookmark Ini?', 'Tautan yang Anda simpan akan dihapus secara permanen.', () => {
+        bookmarks = bookmarks.filter(b => b.id !== id);
+        saveBookmarkData();
+        renderBookmarks();
+      });
+    }
+  });
 
   formAddBm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -558,8 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function closeBmEdit() {
-    modalEditBm.style.display = 'none';
-    modalEditBm.setAttribute('aria-hidden', 'true');
+    closeModal(modalEditBm);
   }
 
   btnCloseEditBm.addEventListener('click', closeBmEdit);
@@ -573,7 +618,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const category = editBmCategory.value.trim();
     const notes = editBmNotes.value.trim();
 
-    if (!title || !checkValidUrl(url) || !category) return;
+    if (!title) { showErrorNotice(editBmError, 'Nama / judul tautan wajib diisi.'); return; }
+    if (!checkValidUrl(url)) { showErrorNotice(editBmError, 'URL tidak valid! Wajib diawali dengan http:// atau https://'); return; }
+    if (!category) { showErrorNotice(editBmError, 'Kategori / tag wajib dicantumkan.'); return; }
+    editBmError.classList.add('hidden');
 
     bookmarks = bookmarks.map(b => {
       if (b.id === id) {
@@ -680,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const quizNewHighscoreBadge = document.getElementById('quiz-new-highscore-badge');
 
   function getSavedHighScore() {
-    return parseInt(localStorage.getItem(QUIZ_STORAGE_KEY) || '0', 10);
+    return parseInt(safeGet(QUIZ_STORAGE_KEY), 10) || 0;
   }
 
   function displayHighScore() {
@@ -705,7 +753,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     quizIndicator.textContent = `Soal ${activeQuestionIdx + 1} dari ${quizBank.length}`;
     quizCurrentScoreEl.textContent = `Poin: ${currentScore}`;
-    quizProgressBar.style.width = `${((activeQuestionIdx + 1) / quizBank.length) * 100}%`;
+    const progress = Math.round(((activeQuestionIdx + 1) / quizBank.length) * 100);
+    quizProgressBar.style.width = `${progress}%`;
+    quizProgressBar.parentElement.setAttribute('aria-valuenow', progress);
+
+    // Label tombol lanjut berubah di soal terakhir
+    const isLast = activeQuestionIdx === quizBank.length - 1;
+    const nextLabel = isLast ? 'Lihat Hasil' : 'Pertanyaan Berikutnya';
+    btnQuizNext.querySelector('span').textContent = nextLabel;
+    btnQuizNext.setAttribute('aria-label', isLast ? 'Lihat Hasil Kuis' : 'Lanjut ke Pertanyaan Berikutnya');
     quizQuestionText.textContent = qData.question;
 
     quizFeedbackBox.classList.add('hidden');
@@ -790,7 +846,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isNewRecord = false;
 
     if (currentScore > oldRecord) {
-      localStorage.setItem(QUIZ_STORAGE_KEY, currentScore.toString());
+      safeSet(QUIZ_STORAGE_KEY, currentScore.toString());
       isNewRecord = true;
       displayHighScore();
     }
@@ -823,6 +879,31 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ==================================================================
    * 6. FUNGSI PEMBANTU (HELPERS)
    * ================================================================== */
+  // localStorage aman dari error (mis. mode privat / data rusak)
+  function safeGet(key) {
+    try { return localStorage.getItem(key); } catch (err) { return null; }
+  }
+
+  function safeSet(key, value) {
+    try { localStorage.setItem(key, value); } catch (err) { /* abaikan */ }
+  }
+
+  function loadList(key, fallback) {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(key));
+      return Array.isArray(parsed) ? parsed : fallback;
+    } catch (err) {
+      return fallback;
+    }
+  }
+
+  // Tanggal hari ini (zona waktu lokal) format YYYY-MM-DD
+  function todayISO() {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().split('T')[0];
+  }
+
   function showErrorNotice(elem, msg) {
     elem.textContent = msg;
     elem.classList.remove('hidden');
@@ -830,7 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function escapeString(str) {
     if (!str) return '';
-    return str.replace(/[&<>'"]/g, tag => ({
+    return String(str).replace(/[&<>'"]/g, tag => ({
       '&': '&amp;',
       '<': '&lt;',
       '>': '&gt;',
