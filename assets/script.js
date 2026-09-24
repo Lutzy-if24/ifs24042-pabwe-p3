@@ -527,9 +527,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <!-- Ganti h4 menjadi h3 terstruktur agar heading-order Axe lolos 100% -->
             <h3 class="text-sm font-bold text-slate-900 line-clamp-1"><a href="${escapeString(bm.url)}" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-700 hover:underline">${escapeString(bm.title)}</a></h3>
 
-            <a href="${escapeString(bm.url)}" target="_blank" rel="noopener noreferrer" aria-label="Buka tautan ${escapeString(bm.title)} di jendela baru" class="inline-flex items-center gap-1.5 text-xs text-indigo-700 hover:underline font-semibold break-all">
+            <a href="${escapeString(bm.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs text-indigo-700 hover:underline font-semibold break-all">
               <i class="ti ti-external-link text-xs" aria-hidden="true"></i>
               <span class="line-clamp-1">${escapeString(bm.url)}</span>
+              <span class="sr-only">(buka di tab baru)</span>
             </a>
 
             ${bm.notes ? `<p class="text-xs text-slate-600 pt-1 line-clamp-2 leading-relaxed bg-slate-50 p-2 rounded-lg border border-slate-100">${escapeString(bm.notes)}</p>` : ''}
@@ -761,7 +762,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const isLast = activeQuestionIdx === quizBank.length - 1;
     const nextLabel = isLast ? 'Lihat Hasil' : 'Pertanyaan Berikutnya';
     btnQuizNext.querySelector('span').textContent = nextLabel;
-    btnQuizNext.setAttribute('aria-label', isLast ? 'Lihat Hasil Kuis' : 'Lanjut ke Pertanyaan Berikutnya');
     quizQuestionText.textContent = qData.question;
 
     quizFeedbackBox.classList.add('hidden');
@@ -771,7 +771,6 @@ document.addEventListener('DOMContentLoaded', () => {
     qData.options.forEach((optText, idx) => {
       const optButton = document.createElement('button');
       optButton.type = 'button';
-      optButton.setAttribute('aria-label', `Pilihan ${String.fromCharCode(65 + idx)}: ${optText}`);
       optButton.className = 'quiz-opt-btn w-full p-4 rounded-xl border border-slate-200 text-left text-xs sm:text-sm font-semibold hover:border-indigo-400 hover:bg-indigo-50/30 transition flex items-center justify-between text-slate-800';
       optButton.innerHTML = `
         <span class="flex items-center gap-3">
