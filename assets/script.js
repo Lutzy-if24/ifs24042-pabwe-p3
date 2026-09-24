@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * 1. INTEGRASI TAB BERBASIS QUERY URL (?tab=...)
    * ================================================================== */
   const VALID_TABS = ['expense', 'bookmark', 'quiz'];
-  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabLinks = document.querySelectorAll('.tab-link');
   const tabPanels = document.querySelectorAll('.tab-panel');
 
   function getActiveTabFromURL() {
@@ -32,16 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    tabButtons.forEach(btn => {
-      const isTarget = btn.getAttribute('data-tab') === tabKey;
+    tabLinks.forEach(link => {
+      const isTarget = link.getAttribute('data-tab') === tabKey;
       if (isTarget) {
-        btn.classList.add('bg-white', 'text-indigo-700', 'shadow-xs');
-        btn.classList.remove('text-slate-700');
-        btn.setAttribute('aria-selected', 'true');
+        link.classList.add('bg-white', 'text-indigo-700', 'shadow-xs');
+        link.classList.remove('text-slate-700');
+        link.setAttribute('aria-current', 'page');
       } else {
-        btn.classList.remove('bg-white', 'text-indigo-700', 'shadow-xs');
-        btn.classList.add('text-slate-700');
-        btn.setAttribute('aria-selected', 'false');
+        link.classList.remove('bg-white', 'text-indigo-700', 'shadow-xs');
+        link.classList.add('text-slate-700');
+        link.removeAttribute('aria-current');
       }
     });
 
@@ -52,9 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tabKey = btn.getAttribute('data-tab');
+  tabLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault(); // Menjaga perilaku SPA tanpa reload halaman
+      const tabKey = link.getAttribute('data-tab');
       renderActiveTab(tabKey, true);
     });
   });
@@ -67,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   /* ==================================================================
-   * 2. MODAL KONFIRMASI HAPUS (AKSESIBEL)
+   * 2. MODAL KONFIRMASI HAPUS (AKSESIBEL DENGAN INLINE DISPLAY)
    * ================================================================== */
   const deleteModal = document.getElementById('modal-confirm-delete');
   const deleteModalTitle = document.getElementById('delete-modal-title');
@@ -80,12 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
     deleteModalTitle.textContent = title;
     deleteModalDesc.textContent = message;
     confirmCallback = onConfirm;
-    deleteModal.classList.remove('hidden');
+    deleteModal.style.display = 'flex';
     deleteModal.setAttribute('aria-hidden', 'false');
   }
 
   function hideDeleteModal() {
-    deleteModal.classList.add('hidden');
+    deleteModal.style.display = 'none';
     deleteModal.setAttribute('aria-hidden', 'true');
     confirmCallback = null;
   }
@@ -280,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editExpenseCategory.value = target.category;
         editExpenseDate.value = target.date;
 
-        modalEditExpense.classList.remove('hidden');
+        modalEditExpense.style.display = 'flex';
         modalEditExpense.setAttribute('aria-hidden', 'false');
       };
     });
@@ -339,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function closeExpenseEdit() {
-    modalEditExpense.classList.add('hidden');
+    modalEditExpense.style.display = 'none';
     modalEditExpense.setAttribute('aria-hidden', 'true');
   }
 
@@ -458,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.innerHTML = `
           <div class="space-y-2">
             <div class="flex items-start justify-between gap-2">
-              <span class="inline-block px-2.5 py-0.5 text-[11px] font-bold rounded bg-indigo-50 text-indigo-700 tracking-wide uppercase">
+              <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded bg-indigo-50 text-indigo-700 tracking-wide uppercase">
                 ${escapeString(bm.category)}
               </span>
               <div class="flex items-center gap-1">
@@ -471,7 +472,8 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             </div>
 
-            <h4 class="text-sm font-bold text-slate-900 line-clamp-1">${escapeString(bm.title)}</h4>
+            <!-- Ganti h4 menjadi h3 terstruktur agar heading-order Axe lolos 100% -->
+            <h3 class="text-sm font-bold text-slate-900 line-clamp-1">${escapeString(bm.title)}</h3>
 
             <a href="${escapeString(bm.url)}" target="_blank" rel="noopener noreferrer" aria-label="Buka tautan ${escapeString(bm.title)} di jendela baru" class="inline-flex items-center gap-1.5 text-xs text-indigo-700 hover:underline font-semibold break-all">
               <i class="ti ti-external-link text-xs" aria-hidden="true"></i>
@@ -501,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editBmCategory.value = target.category;
         editBmNotes.value = target.notes || '';
 
-        modalEditBm.classList.remove('hidden');
+        modalEditBm.style.display = 'flex';
         modalEditBm.setAttribute('aria-hidden', 'false');
       };
     });
@@ -556,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function closeBmEdit() {
-    modalEditBm.classList.add('hidden');
+    modalEditBm.style.display = 'none';
     modalEditBm.setAttribute('aria-hidden', 'true');
   }
 
