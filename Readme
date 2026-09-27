@@ -1,26 +1,23 @@
-# Padu — Buku Catatan Digital
+# LaciKu — Aplikasi Web Interaktif (Studi Kasus Praktikum 3)
 
-Nama: Martulut Simbolon
-NIM: 11S24042
+Proyek aplikasi web satu halaman (*Single Page Application* / SPA) yang dibangun menggunakan HTML5 semantik, Tailwind CSS (CDN), Tabler Icons, dan JavaScript murni (*Vanilla JS*). Aplikasi ini menggabungkan tiga modul produktivitas interaktif dalam satu antarmuka berbasis tab.
 
-Studi kasus praktikum PABWE: aplikasi satu halaman dengan tiga fitur yang dipisahkan lewat tab.
+---
 
-## Fitur
-1. **Catatan Pengeluaran Harian** — CRUD transaksi (judul, kategori, jumlah, tipe, tanggal), ringkasan saldo, pencarian/filter/sorting, tersimpan di `localStorage` (`padu_expenses`).
-2. **Tautan Tersimpan (Bookmark Manager)** — CRUD tautan dengan validasi URL (`http://`/`https://`), kategori & catatan, pencarian/sorting, tersimpan di `localStorage` (`padu_bookmarks`).
-3. **Kuis Kilat** — 6 soal pilihan ganda dasar web (5 diambil acak tiap sesi), skor per sesi, dan skor tertinggi tersimpan di `localStorage` (`padu_quiz_highscore`).
+## 👤 Identitas Pengembang
+- **Nama Lengkap:** Martulut Simbolon
+- **NIM:** IFS24042
+- **Kelas:** Praktikum Pengembangan Aplikasi Berbasis Web (PABWE)
+- **Repositori:** `ifs24042-pabwe-p3`
+- **Tautan Publik (Deploy):** [https://ifs24042-p3.netlify.app](https://ifs24042-p3.netlify.app)
 
-Tab terakhir yang dibuka diingat lewat **query string URL** (`?tab=expense|bookmark|quiz`), bukan `localStorage` — jadi tab bisa langsung dituju atau dibagikan lewat link, dan tombol back/forward browser juga berfungsi.
+---
 
-## Struktur
-```
-11s24042-pabwe-p3/
-├── index.html
-├── assets/
-│   ├── script.js
-│   └── img/
-└── README.md
-```
+## 📁 Struktur Berkas Proyek
 
-## Cara menjalankan
-Buka `index.html` langsung di browser, atau jalankan lewat live server apa pun (tidak butuh backend).
+```text
+ifs24042-pabwe-p3/
+├── index.html          # Markup semantik, kerangka panel, dan dialog modal
+├── README.md           # Dokumentasi teknis proyek
+└── assets/
+    └── script.js       # Seluruh logika interaktivitas, DOM, validasi, & persistensi
