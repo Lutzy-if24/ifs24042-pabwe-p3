@@ -9,34 +9,17 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ==================================================================
-   * 0. HELPER IKON (SVG SPRITE, MENGGANTIKAN WEBFONT EKSTERNAL)
-   * ================================================================== */
-  function iconMarkup(iconName, extraClass = '', hidden = true) {
-    return `<svg class="ti ${iconName} ${extraClass}"${hidden ? ' aria-hidden="true"' : ''}><use href="#${iconName}"></use></svg>`;
-  }
-
-  function setIcon(el, iconName, extraClass) {
-    if (!el) return;
-    el.setAttribute('class', `ti ${iconName} ${extraClass}`.trim());
-    const use = el.querySelector('use');
-    if (use) use.setAttribute('href', `#${iconName}`);
-  }
-
-  /* ==================================================================
    * 1. INTEGRASI TAB BERBASIS QUERY URL (?tab=...)
+   * Catatan Rubrik: State tab dipulihkan LEWAT QUERY URL, BUKAN localStorage!
    * ================================================================== */
   const VALID_TABS = ['expense', 'bookmark', 'quiz'];
   const tabLinks = document.querySelectorAll('.tab-link');
   const tabPanels = document.querySelectorAll('.tab-panel');
 
-  const TAB_STORAGE_KEY = 'pabwe_active_tab';
-
   function getActiveTabFromURL() {
     const params = new URLSearchParams(window.location.search);
     const tabParam = params.get('tab');
-    if (VALID_TABS.includes(tabParam)) return tabParam;
-    const savedTab = localStorage.getItem(TAB_STORAGE_KEY);
-    return VALID_TABS.includes(savedTab) ? savedTab : 'expense';
+    return VALID_TABS.includes(tabParam) ? tabParam : 'expense';
   }
 
   function renderActiveTab(tabKey, updateURL = true) {
@@ -53,18 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
     tabLinks.forEach(link => {
       const isTarget = link.getAttribute('data-tab') === tabKey;
       if (isTarget) {
-        link.classList.add('bg-white', 'text-indigo-700', 'shadow-xs');
+        link.classList.add('bg-white', 'text-indigo-800', 'shadow-xs');
         link.classList.remove('text-slate-700');
         link.setAttribute('aria-current', 'page');
       } else {
-        link.classList.remove('bg-white', 'text-indigo-700', 'shadow-xs');
+        link.classList.remove('bg-white', 'text-indigo-800', 'shadow-xs');
         link.classList.add('text-slate-700');
         link.removeAttribute('aria-current');
       }
     });
 
-    localStorage.setItem(TAB_STORAGE_KEY, tabKey);
-
+    // Perbarui query URL tanpa me-reload halaman
     if (updateURL) {
       const url = new URL(window.location.href);
       url.searchParams.set('tab', tabKey);
@@ -84,11 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderActiveTab(getActiveTabFromURL(), false);
   });
 
+  // Load awal murni dari query URL
   renderActiveTab(getActiveTabFromURL(), false);
 
 
   /* ==================================================================
-   * 2. MODAL KONFIRMASI HAPUS (AKSESIBEL DENGAN INLINE DISPLAY)
+   * 2. MODAL KONFIRMASI HAPUS
    * ================================================================== */
   const deleteModal = document.getElementById('modal-confirm-delete');
   const deleteModalTitle = document.getElementById('delete-modal-title');
@@ -123,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ==================================================================
    * 3. FITUR: EXPENSE TRACKER
-   * Storage: pabwe_expense_records
+   * Storage Key: pabwe_expense_records
    * ================================================================== */
   const EXPENSE_STORAGE_KEY = 'pabwe_expense_records';
   let expenses = JSON.parse(localStorage.getItem(EXPENSE_STORAGE_KEY)) || [
@@ -215,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statBalanceEl.textContent = formatIDR(balance);
 
     if (balance < 0) {
-      statBalanceEl.className = 'text-2xl font-bold text-rose-700 mt-1';
+      statBalanceEl.className = 'text-2xl font-bold text-rose-800 mt-1';
     } else {
       statBalanceEl.className = 'text-2xl font-bold text-slate-900 mt-1';
     }
@@ -253,28 +236,28 @@ document.addEventListener('DOMContentLoaded', () => {
         itemRow.className = 'p-4 flex items-center justify-between hover:bg-slate-50 transition';
         itemRow.innerHTML = `
           <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg ${isIncome ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}" aria-hidden="true">
-              ${iconMarkup(isIncome ? 'ti-arrow-down-left' : 'ti-arrow-up-right')}
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg ${isIncome ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900'}" aria-hidden="true">
+              <i class="ti ${isIncome ? 'ti-arrow-down-left' : 'ti-arrow-up-right'}"></i>
             </div>
             <div>
               <p class="text-sm font-bold text-slate-900">${escapeString(item.title)}</p>
-              <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-600">
-                <span class="inline-block px-2 py-0.5 bg-slate-100 rounded text-slate-700 font-semibold">${escapeString(item.category)}</span>
+              <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-700">
+                <span class="inline-block px-2.5 py-0.5 bg-slate-100 rounded text-slate-800 font-semibold">${escapeString(item.category)}</span>
                 <span>&bull;</span>
                 <span>${formatDateID(item.date)}</span>
               </div>
             </div>
           </div>
           <div class="flex items-center gap-4">
-            <span class="text-sm font-bold ${isIncome ? 'text-emerald-700' : 'text-slate-900'}">
+            <span class="text-sm font-bold ${isIncome ? 'text-emerald-800' : 'text-slate-900'}">
               ${isIncome ? '+' : '-'} ${formatIDR(item.amount)}
             </span>
             <div class="flex items-center gap-1">
-              <button data-id="${item.id}" aria-label="Ubah transaksi ${escapeString(item.title)}" class="btn-edit-expense p-1.5 text-slate-600 hover:text-indigo-700 transition">
-                ${iconMarkup('ti-edit', 'text-base')}
+              <button data-id="${item.id}" aria-label="Ubah transaksi ${escapeString(item.title)}" class="btn-edit-expense p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-700 hover:text-indigo-700 transition">
+                <i class="ti ti-edit text-base" aria-hidden="true"></i>
               </button>
-              <button data-id="${item.id}" aria-label="Hapus transaksi ${escapeString(item.title)}" class="btn-del-expense p-1.5 text-slate-600 hover:text-rose-700 transition">
-                ${iconMarkup('ti-trash', 'text-base')}
+              <button data-id="${item.id}" aria-label="Hapus transaksi ${escapeString(item.title)}" class="btn-del-expense p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-700 hover:text-rose-700 transition">
+                <i class="ti ti-trash text-base" aria-hidden="true"></i>
               </button>
             </div>
           </div>
@@ -397,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ==================================================================
    * 4. FITUR: BOOKMARK MANAGER
-   * Storage: pabwe_bookmark_vault
+   * Storage Key: pabwe_bookmark_vault (Terpisah)
    * ================================================================== */
   const BM_STORAGE_KEY = 'pabwe_bookmark_vault';
   let bookmarks = JSON.parse(localStorage.getItem(BM_STORAGE_KEY)) || [
@@ -479,28 +462,27 @@ document.addEventListener('DOMContentLoaded', () => {
         card.innerHTML = `
           <div class="space-y-2">
             <div class="flex items-start justify-between gap-2">
-              <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded bg-indigo-50 text-indigo-700 tracking-wide uppercase">
+              <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded bg-indigo-100 text-indigo-950 tracking-wide uppercase">
                 ${escapeString(bm.category)}
               </span>
               <div class="flex items-center gap-1">
-                <button data-id="${bm.id}" aria-label="Ubah bookmark ${escapeString(bm.title)}" class="btn-edit-bm p-1.5 text-slate-600 hover:text-indigo-700 transition">
-                  ${iconMarkup('ti-edit', 'text-base')}
+                <button data-id="${bm.id}" aria-label="Ubah bookmark ${escapeString(bm.title)}" class="btn-edit-bm p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-700 hover:text-indigo-700 transition">
+                  <i class="ti ti-edit text-base" aria-hidden="true"></i>
                 </button>
-                <button data-id="${bm.id}" aria-label="Hapus bookmark ${escapeString(bm.title)}" class="btn-del-bm p-1.5 text-slate-600 hover:text-rose-700 transition">
-                  ${iconMarkup('ti-trash', 'text-base')}
+                <button data-id="${bm.id}" aria-label="Hapus bookmark ${escapeString(bm.title)}" class="btn-del-bm p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-700 hover:text-rose-700 transition">
+                  <i class="ti ti-trash text-base" aria-hidden="true"></i>
                 </button>
               </div>
             </div>
 
-            <!-- Ganti h4 menjadi h3 terstruktur agar heading-order Axe lolos 100% -->
             <h3 class="text-sm font-bold text-slate-900 line-clamp-1">${escapeString(bm.title)}</h3>
 
             <a href="${escapeString(bm.url)}" target="_blank" rel="noopener noreferrer" aria-label="Buka tautan ${escapeString(bm.title)} di jendela baru" class="inline-flex items-center gap-1.5 text-xs text-indigo-700 hover:underline font-semibold break-all">
-              ${iconMarkup('ti-external-link', 'text-xs')}
+              <i class="ti ti-external-link text-xs" aria-hidden="true"></i>
               <span class="line-clamp-1">${escapeString(bm.url)}</span>
             </a>
 
-            ${bm.notes ? `<p class="text-xs text-slate-600 pt-1 line-clamp-2 leading-relaxed bg-slate-50 p-2 rounded-lg border border-slate-100">${escapeString(bm.notes)}</p>` : ''}
+            ${bm.notes ? `<p class="text-xs text-slate-700 pt-1 line-clamp-2 leading-relaxed bg-slate-50 p-2 rounded-lg border border-slate-100">${escapeString(bm.notes)}</p>` : ''}
           </div>
         `;
         bmCardsContainer.appendChild(card);
@@ -613,7 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ==================================================================
    * 5. FITUR: KUIS INTERAKTIF
-   * Storage: pabwe_quiz_highscore
+   * Storage Key: pabwe_quiz_highscore (Terpisah)
    * ================================================================== */
   const QUIZ_STORAGE_KEY = 'pabwe_quiz_highscore';
 
@@ -685,6 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const statHighScoreEl = document.getElementById('quiz-stat-highscore');
   const quizIndicator = document.getElementById('quiz-indicator');
   const quizCurrentScoreEl = document.getElementById('quiz-current-score');
+  const quizProgressWrapper = document.getElementById('quiz-progress-wrapper');
   const quizProgressBar = document.getElementById('quiz-progress-bar');
   const quizQuestionText = document.getElementById('quiz-question-text');
   const quizOptionsContainer = document.getElementById('quiz-options-container');
@@ -722,10 +705,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderQuestion() {
     isAnswerLocked = false;
     const qData = quizBank[activeQuestionIdx];
+    const progressPercent = Math.round(((activeQuestionIdx + 1) / quizBank.length) * 100);
 
     quizIndicator.textContent = `Soal ${activeQuestionIdx + 1} dari ${quizBank.length}`;
     quizCurrentScoreEl.textContent = `Poin: ${currentScore}`;
-    quizProgressBar.style.width = `${((activeQuestionIdx + 1) / quizBank.length) * 100}%`;
+    quizProgressBar.style.width = `${progressPercent}%`;
+    quizProgressWrapper.setAttribute('aria-valuenow', progressPercent.toString());
     quizQuestionText.textContent = qData.question;
 
     quizFeedbackBox.classList.add('hidden');
@@ -736,13 +721,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const optButton = document.createElement('button');
       optButton.type = 'button';
       optButton.setAttribute('aria-label', `Pilihan ${String.fromCharCode(65 + idx)}: ${optText}`);
-      optButton.className = 'quiz-opt-btn w-full p-4 rounded-xl border border-slate-200 text-left text-xs sm:text-sm font-semibold hover:border-indigo-400 hover:bg-indigo-50/30 transition flex items-center justify-between text-slate-800';
+      optButton.className = 'quiz-opt-btn w-full p-4 min-h-[48px] rounded-xl border border-slate-300 text-left text-xs sm:text-sm font-semibold hover:border-indigo-600 hover:bg-indigo-50/40 transition flex items-center justify-between text-slate-800';
       optButton.innerHTML = `
         <span class="flex items-center gap-3">
-          <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-xs" aria-hidden="true">${String.fromCharCode(65 + idx)}</span>
+          <span class="w-6 h-6 rounded-full bg-slate-100 text-slate-800 font-bold flex items-center justify-center text-xs" aria-hidden="true">${String.fromCharCode(65 + idx)}</span>
           <span>${escapeString(optText)}</span>
         </span>
-        ${iconMarkup('ti-circle', 'text-slate-400 text-base check-icon')}
+        <i class="ti ti-circle text-slate-600 text-base check-icon" aria-hidden="true"></i>
       `;
 
       optButton.addEventListener('click', () => chooseOption(idx, optButton));
@@ -762,24 +747,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isCorrect) {
       currentScore++;
-      clickedButton.classList.remove('border-slate-200');
-      clickedButton.classList.add('border-emerald-600', 'bg-emerald-50', 'text-emerald-900');
-      setIcon(clickedButton.querySelector('.check-icon'), 'ti-circle-check-filled', 'text-emerald-700 text-lg');
+      clickedButton.classList.remove('border-slate-300');
+      clickedButton.classList.add('border-emerald-700', 'bg-emerald-50', 'text-emerald-950');
+      clickedButton.querySelector('.check-icon').className = 'ti ti-circle-check text-emerald-800 text-lg';
 
-      quizFeedbackBox.className = 'p-4 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-3 bg-emerald-50 text-emerald-900 border border-emerald-300';
-      setIcon(quizFeedbackIcon, 'ti-circle-check', 'text-emerald-700 text-xl');
+      quizFeedbackBox.className = 'p-4 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-3 bg-emerald-100 text-emerald-950 border border-emerald-300';
+      quizFeedbackIcon.className = 'ti ti-circle-check text-emerald-800 text-xl';
       quizFeedbackMsg.textContent = 'Jawaban tepat sekali!';
     } else {
-      clickedButton.classList.remove('border-slate-200');
-      clickedButton.classList.add('border-rose-600', 'bg-rose-50', 'text-rose-900');
-      setIcon(clickedButton.querySelector('.check-icon'), 'ti-circle-x-filled', 'text-rose-700 text-lg');
+      clickedButton.classList.remove('border-slate-300');
+      clickedButton.classList.add('border-rose-700', 'bg-rose-50', 'text-rose-950');
+      clickedButton.querySelector('.check-icon').className = 'ti ti-circle-x text-rose-800 text-lg';
 
       const correctBtn = allButtons[qData.correct];
-      correctBtn.classList.add('border-emerald-600', 'bg-emerald-50', 'text-emerald-900');
-      setIcon(correctBtn.querySelector('.check-icon'), 'ti-circle-check-filled', 'text-emerald-700 text-lg');
+      correctBtn.classList.add('border-emerald-700', 'bg-emerald-50', 'text-emerald-950');
+      correctBtn.querySelector('.check-icon').className = 'ti ti-circle-check text-emerald-800 text-lg';
 
-      quizFeedbackBox.className = 'p-4 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-3 bg-rose-50 text-rose-900 border border-rose-300';
-      setIcon(quizFeedbackIcon, 'ti-circle-x', 'text-rose-700 text-xl');
+      quizFeedbackBox.className = 'p-4 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-3 bg-rose-100 text-rose-950 border border-rose-300';
+      quizFeedbackIcon.className = 'ti ti-circle-x text-rose-800 text-xl';
       quizFeedbackMsg.textContent = `Kurang tepat. Jawaban benar: "${qData.options[qData.correct]}".`;
     }
 
@@ -822,16 +807,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (currentScore === totalQuestions) {
-      quizResultIconContainer.className = 'w-20 h-20 bg-emerald-50 text-emerald-700 rounded-3xl flex items-center justify-center mx-auto text-4xl';
-      quizResultIconContainer.innerHTML = iconMarkup('ti-trophy');
+      quizResultIconContainer.className = 'w-20 h-20 bg-emerald-100 text-emerald-900 rounded-3xl flex items-center justify-center mx-auto text-4xl';
+      quizResultIconContainer.innerHTML = '<i class="ti ti-trophy" aria-hidden="true"></i>';
       quizResultEvaluation.textContent = 'Luar biasa sempurna! Penguasaan materi Anda sangat baik.';
     } else if (currentScore >= 3) {
-      quizResultIconContainer.className = 'w-20 h-20 bg-indigo-50 text-indigo-700 rounded-3xl flex items-center justify-center mx-auto text-4xl';
-      quizResultIconContainer.innerHTML = iconMarkup('ti-thumb-up');
+      quizResultIconContainer.className = 'w-20 h-20 bg-indigo-100 text-indigo-950 rounded-3xl flex items-center justify-center mx-auto text-4xl';
+      quizResultIconContainer.innerHTML = '<i class="ti ti-thumb-up" aria-hidden="true"></i>';
       quizResultEvaluation.textContent = 'Hasil cukup bagus! Tinjau kembali konsep untuk nilai optimal.';
     } else {
-      quizResultIconContainer.className = 'w-20 h-20 bg-amber-50 text-amber-700 rounded-3xl flex items-center justify-center mx-auto text-4xl';
-      quizResultIconContainer.innerHTML = iconMarkup('ti-notes');
+      quizResultIconContainer.className = 'w-20 h-20 bg-amber-100 text-amber-950 rounded-3xl flex items-center justify-center mx-auto text-4xl';
+      quizResultIconContainer.innerHTML = '<i class="ti ti-notes" aria-hidden="true"></i>';
       quizResultEvaluation.textContent = 'Perlu ditingkatkan lagi. Pelajari materi DOM & Web API.';
     }
   }
@@ -859,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }[tag] || tag));
   }
 
-  /* Inisialisasi */
+  /* Inisialisasi Data */
   renderExpenses();
   renderBookmarks();
   displayHighScore();
