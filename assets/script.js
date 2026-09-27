@@ -1,71 +1,41 @@
 'use strict';
 
-/* ============================================================================
-   LaciKu — assets/script.js
-   Studi kasus PABWE P3
-
-   Struktur file:
-   1. Util bersama (storage helper, format angka, id generator)
-   2. Navigasi tab (state tab disimpan di query string URL, BUKAN localStorage)
-   3. Modul Expense Tracker   (IIFE, key storage sendiri)
-   4. Modul Bookmark Manager  (IIFE, key storage sendiri)
-   5. Modul Quiz App          (IIFE, key storage sendiri)
-   6. Bootstrap aplikasi
-   ============================================================================ */
-
-/* ============================================================================
-   1. UTIL BERSAMA
-   ============================================================================ */
-
-// Key localStorage dipisah per fitur agar data tidak saling menimpa
 const STORAGE_KEYS = {
   EXPENSE: 'laciku_expenses_v1',
   BOOKMARK: 'laciku_bookmarks_v1',
   QUIZ_HIGHSCORE: 'laciku_quiz_highscore_v1',
 };
 
-/**
- * Mengambil data JSON dari localStorage dengan aman.
- * Mengembalikan fallback jika data tidak ada / rusak.
- */
 function loadFromStorage(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : fallback;
   } catch (err) {
-    console.error(`Gagal memuat data untuk key "${key}":`, err);
     return fallback;
   }
 }
 
-/** Menyimpan data ke localStorage dalam bentuk JSON. */
 function saveToStorage(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch (err) {
-    console.error(`Gagal menyimpan data untuk key "${key}":`, err);
-  }
+  } catch (err) {}
 }
 
-/** Membuat id unik sederhana berbasis timestamp + random string. */
 function generateId() {
   return `id-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-/** Format angka menjadi format Rupiah, contoh: 25000 -> "Rp 25.000". */
 function formatRupiah(value) {
   const number = Number(value) || 0;
   return `Rp ${number.toLocaleString('id-ID')}`;
 }
 
-/** Escape karakter HTML agar input pengguna aman ditampilkan lewat innerHTML. */
 function escapeHTML(text) {
   const div = document.createElement('div');
   div.textContent = String(text ?? '');
   return div.innerHTML;
 }
 
-/** Helper generik untuk membuka / menutup modal via class 'is-open'. */
 function openModal(modalId) {
   document.getElementById(modalId)?.classList.add('is-open');
 }
@@ -73,22 +43,15 @@ function closeModal(modalId) {
   document.getElementById(modalId)?.classList.remove('is-open');
 }
 
-// Tombol dengan atribut data-close-modal dipakai di beberapa modal sekaligus
 document.addEventListener('click', (event) => {
   const closeBtn = event.target.closest('[data-close-modal]');
   if (closeBtn) {
     closeModal(closeBtn.dataset.closeModal);
   }
-  // Klik area gelap di luar kotak modal juga menutup modal
   if (event.target.classList.contains('modal-overlay')) {
     event.target.classList.remove('is-open');
   }
 });
-
-/* ============================================================================
-   2. NAVIGASI TAB — state disimpan & dipulihkan lewat query string URL
-      Contoh: index.html?tab=bookmark (TIDAK menyentuh localStorage!)
-   ============================================================================ */
 
 const TabNavigation = (() => {
   const TAB_IDS = ['expense', 'bookmark', 'quiz'];
@@ -111,35 +74,27 @@ const TabNavigation = (() => {
       const panel = document.getElementById(`panel-${id}`);
       const button = document.getElementById(`tab-btn-${id}`);
       const isActive = id === tabId;
-      panel.classList.toggle('is-active', isActive);
-      button.setAttribute('aria-selected', String(isActive));
+      panel?.classList.toggle('is-active', isActive);
+      button?.setAttribute('aria-selected', String(isActive));
     });
     setTabInURL(tabId);
   }
 
   function init() {
     TAB_IDS.forEach((id) => {
-      document.getElementById(`tab-btn-${id}`).addEventListener('click', () => activateTab(id));
+      document.getElementById(`tab-btn-${id}`)?.addEventListener('click', () => activateTab(id));
     });
-    // Pulihkan tab terakhir dari query string saat halaman dimuat / di-refresh
     activateTab(getTabFromURL());
-
-    // Jika pengguna menekan tombol back/forward browser, ikuti perubahan query
     window.addEventListener('popstate', () => activateTab(getTabFromURL()));
   }
 
   return { init };
 })();
 
-/* ============================================================================
-   3. MODUL EXPENSE TRACKER
-   ============================================================================ */
-
 const ExpenseTracker = (() => {
   let expenses = loadFromStorage(STORAGE_KEYS.EXPENSE, []);
   let deleteTargetId = null;
 
-  // --- Referensi DOM ---
   const form = document.getElementById('expense-form');
   const titleInput = document.getElementById('expense-title');
   const categoryInput = document.getElementById('expense-category');
@@ -159,7 +114,6 @@ const ExpenseTracker = (() => {
   const totalExpenseEl = document.getElementById('expense-total-expense');
   const balanceEl = document.getElementById('expense-balance');
 
-  // Modal ubah
   const editModalId = 'expense-modal';
   const editForm = document.getElementById('expense-edit-form');
   const editIdInput = document.getElementById('expense-edit-id');
@@ -169,7 +123,6 @@ const ExpenseTracker = (() => {
   const editTypeInput = document.getElementById('expense-edit-type');
   const editDateInput = document.getElementById('expense-edit-date');
 
-  // Modal hapus
   const deleteModalId = 'expense-delete-modal';
   const deleteConfirmBtn = document.getElementById('expense-delete-confirm-btn');
 
@@ -177,7 +130,6 @@ const ExpenseTracker = (() => {
     saveToStorage(STORAGE_KEYS.EXPENSE, expenses);
   }
 
-  /** Validasi form tambah/ubah transaksi. Mengembalikan objek error (kosong = valid). */
   function validate({ title, amount, date }) {
     const errors = {};
     if (!title || !title.trim()) errors.title = 'Judul wajib diisi.';
@@ -201,8 +153,7 @@ const ExpenseTracker = (() => {
     });
   }
 
-  // --- Tambah transaksi ---
-  form.addEventListener('submit', (event) => {
+  form?.addEventListener('submit', (event) => {
     event.preventDefault();
     const data = {
       title: titleInput.value,
@@ -234,7 +185,6 @@ const ExpenseTracker = (() => {
     render();
   });
 
-  // --- Buka modal ubah ---
   function openEditModal(id) {
     const item = expenses.find((exp) => exp.id === id);
     if (!item) return;
@@ -248,7 +198,7 @@ const ExpenseTracker = (() => {
     openModal(editModalId);
   }
 
-  editForm.addEventListener('submit', (event) => {
+  editForm?.addEventListener('submit', (event) => {
     event.preventDefault();
     const data = {
       title: editTitleInput.value,
@@ -279,13 +229,12 @@ const ExpenseTracker = (() => {
     closeModal(editModalId);
   });
 
-  // --- Hapus transaksi (via modal konfirmasi) ---
   function openDeleteModal(id) {
     deleteTargetId = id;
     openModal(deleteModalId);
   }
 
-  deleteConfirmBtn.addEventListener('click', () => {
+  deleteConfirmBtn?.addEventListener('click', () => {
     if (deleteTargetId) {
       expenses = expenses.filter((exp) => exp.id !== deleteTargetId);
       persist();
@@ -295,12 +244,11 @@ const ExpenseTracker = (() => {
     closeModal(deleteModalId);
   });
 
-  // --- Filter, cari, sort ---
   function getVisibleExpenses() {
-    const keyword = searchInput.value.trim().toLowerCase();
-    const typeFilter = filterTypeSelect.value;
-    const categoryFilter = filterCategorySelect.value;
-    const sortMode = sortSelect.value;
+    const keyword = searchInput?.value.trim().toLowerCase() || '';
+    const typeFilter = filterTypeSelect?.value || 'all';
+    const categoryFilter = filterCategorySelect?.value || 'all';
+    const sortMode = sortSelect?.value || 'newest';
 
     let result = expenses.filter((exp) => {
       const matchesKeyword = !keyword || exp.title.toLowerCase().includes(keyword);
@@ -311,15 +259,11 @@ const ExpenseTracker = (() => {
 
     result = result.sort((a, b) => {
       switch (sortMode) {
-        case 'oldest':
-          return a.createdAt - b.createdAt;
-        case 'amount-desc':
-          return b.amount - a.amount;
-        case 'amount-asc':
-          return a.amount - b.amount;
+        case 'oldest': return a.createdAt - b.createdAt;
+        case 'amount-desc': return b.amount - a.amount;
+        case 'amount-asc': return a.amount - b.amount;
         case 'newest':
-        default:
-          return b.createdAt - a.createdAt;
+        default: return b.createdAt - a.createdAt;
       }
     });
 
@@ -327,22 +271,16 @@ const ExpenseTracker = (() => {
   }
 
   function renderSummary() {
-    const totalIncome = expenses
-      .filter((exp) => exp.type === 'pemasukan')
-      .reduce((sum, exp) => sum + exp.amount, 0);
-    const totalExpense = expenses
-      .filter((exp) => exp.type === 'pengeluaran')
-      .reduce((sum, exp) => sum + exp.amount, 0);
-
-    totalIncomeEl.textContent = formatRupiah(totalIncome);
-    totalExpenseEl.textContent = formatRupiah(totalExpense);
-    balanceEl.textContent = formatRupiah(totalIncome - totalExpense);
+    const totalIncome = expenses.filter((e) => e.type === 'pemasukan').reduce((s, e) => s + e.amount, 0);
+    const totalExpense = expenses.filter((e) => e.type === 'pengeluaran').reduce((s, e) => s + e.amount, 0);
+    if (totalIncomeEl) totalIncomeEl.textContent = formatRupiah(totalIncome);
+    if (totalExpenseEl) totalExpenseEl.textContent = formatRupiah(totalExpense);
+    if (balanceEl) balanceEl.textContent = formatRupiah(totalIncome - totalExpense);
   }
 
   function createExpenseRow(item) {
     const row = document.createElement('div');
     row.className = 'row-card p-3 flex flex-wrap items-center justify-between gap-3';
-
     const isIncome = item.type === 'pemasukan';
     const badgeClass = isIncome ? 'badge-income' : 'badge-expense';
     const badgeLabel = isIncome ? 'Pemasukan' : 'Pengeluaran';
@@ -351,40 +289,40 @@ const ExpenseTracker = (() => {
 
     row.innerHTML = `
       <div class="min-w-[10rem]">
-        <p class="font-semibold text-sm text-ink">${escapeHTML(item.title)}</p>
+        <p class="font-semibold text-sm">${escapeHTML(item.title)}</p>
         <div class="flex flex-wrap items-center gap-2 mt-1">
           <span class="badge ${badgeClass}">${badgeLabel}</span>
           <span class="badge badge-cat">${escapeHTML(item.category)}</span>
-          <span class="text-xs text-inkmuted font-medium">${escapeHTML(item.date)}</span>
+          <span class="text-xs text-inkmuted">${escapeHTML(item.date)}</span>
         </div>
       </div>
       <div class="flex items-center gap-4">
         <p class="font-display font-semibold ${amountColor}">${amountSign} ${formatRupiah(item.amount)}</p>
         <div class="flex gap-1">
-          <button type="button" class="btn-edit p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-[#EDE9DA]" aria-label="Ubah transaksi ${escapeHTML(item.title)}">
-            <i class="ti ti-pencil text-base" aria-hidden="true"></i>
+          <button type="button" class="btn-edit p-2 rounded hover:bg-[#EDE9DA]" aria-label="Ubah transaksi">
+            <i class="ti ti-pencil" aria-hidden="true"></i>
           </button>
-          <button type="button" class="btn-delete p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-[#EDE9DA]" aria-label="Hapus transaksi ${escapeHTML(item.title)}">
-            <i class="ti ti-trash text-rust text-base" aria-hidden="true"></i>
+          <button type="button" class="btn-delete p-2 rounded hover:bg-[#EDE9DA]" aria-label="Hapus transaksi">
+            <i class="ti ti-trash text-rust" aria-hidden="true"></i>
           </button>
         </div>
       </div>
     `;
 
-    row.querySelector('.btn-edit').addEventListener('click', () => openEditModal(item.id));
-    row.querySelector('.btn-delete').addEventListener('click', () => openDeleteModal(item.id));
+    row.querySelector('.btn-edit')?.addEventListener('click', () => openEditModal(item.id));
+    row.querySelector('.btn-delete')?.addEventListener('click', () => openDeleteModal(item.id));
     return row;
   }
 
   function render() {
     renderSummary();
     const visible = getVisibleExpenses();
-
+    if (!listContainer) return;
     listContainer.innerHTML = '';
     if (visible.length === 0) {
-      emptyState.classList.remove('hidden');
+      emptyState?.classList.remove('hidden');
     } else {
-      emptyState.classList.add('hidden');
+      emptyState?.classList.add('hidden');
       const fragment = document.createDocumentFragment();
       visible.forEach((item) => fragment.appendChild(createExpenseRow(item)));
       listContainer.appendChild(fragment);
@@ -393,8 +331,8 @@ const ExpenseTracker = (() => {
 
   function init() {
     [searchInput, filterTypeSelect, filterCategorySelect, sortSelect].forEach((el) => {
-      el.addEventListener('input', render);
-      el.addEventListener('change', render);
+      el?.addEventListener('input', render);
+      el?.addEventListener('change', render);
     });
     render();
   }
@@ -402,15 +340,10 @@ const ExpenseTracker = (() => {
   return { init };
 })();
 
-/* ============================================================================
-   4. MODUL BOOKMARK MANAGER
-   ============================================================================ */
-
 const BookmarkManager = (() => {
   let bookmarks = loadFromStorage(STORAGE_KEYS.BOOKMARK, []);
   let deleteTargetId = null;
 
-  // --- Referensi DOM ---
   const form = document.getElementById('bookmark-form');
   const titleInput = document.getElementById('bookmark-title');
   const urlInput = document.getElementById('bookmark-url');
@@ -423,7 +356,6 @@ const BookmarkManager = (() => {
   const searchInput = document.getElementById('bookmark-search');
   const sortSelect = document.getElementById('bookmark-sort');
 
-  // Modal ubah
   const editModalId = 'bookmark-modal';
   const editForm = document.getElementById('bookmark-edit-form');
   const editIdInput = document.getElementById('bookmark-edit-id');
@@ -432,7 +364,6 @@ const BookmarkManager = (() => {
   const editCategoryInput = document.getElementById('bookmark-edit-category');
   const editNoteInput = document.getElementById('bookmark-edit-note');
 
-  // Modal hapus
   const deleteModalId = 'bookmark-delete-modal';
   const deleteConfirmBtn = document.getElementById('bookmark-delete-confirm-btn');
 
@@ -440,7 +371,6 @@ const BookmarkManager = (() => {
     saveToStorage(STORAGE_KEYS.BOOKMARK, bookmarks);
   }
 
-  /** Validasi URL sederhana: wajib diawali http:// atau https:// dan punya domain. */
   function isValidURL(value) {
     if (!/^https?:\/\/.+/i.test(value.trim())) return false;
     try {
@@ -475,8 +405,7 @@ const BookmarkManager = (() => {
     });
   }
 
-  // --- Tambah bookmark ---
-  form.addEventListener('submit', (event) => {
+  form?.addEventListener('submit', (event) => {
     event.preventDefault();
     const data = {
       title: titleInput.value,
@@ -506,7 +435,6 @@ const BookmarkManager = (() => {
     render();
   });
 
-  // --- Buka modal ubah ---
   function openEditModal(id) {
     const item = bookmarks.find((bm) => bm.id === id);
     if (!item) return;
@@ -519,7 +447,7 @@ const BookmarkManager = (() => {
     openModal(editModalId);
   }
 
-  editForm.addEventListener('submit', (event) => {
+  editForm?.addEventListener('submit', (event) => {
     event.preventDefault();
     const data = {
       title: editTitleInput.value,
@@ -549,13 +477,12 @@ const BookmarkManager = (() => {
     closeModal(editModalId);
   });
 
-  // --- Hapus bookmark (via modal konfirmasi) ---
   function openDeleteModal(id) {
     deleteTargetId = id;
     openModal(deleteModalId);
   }
 
-  deleteConfirmBtn.addEventListener('click', () => {
+  deleteConfirmBtn?.addEventListener('click', () => {
     if (deleteTargetId) {
       bookmarks = bookmarks.filter((bm) => bm.id !== deleteTargetId);
       persist();
@@ -565,10 +492,9 @@ const BookmarkManager = (() => {
     closeModal(deleteModalId);
   });
 
-  // --- Cari & sort ---
   function getVisibleBookmarks() {
-    const keyword = searchInput.value.trim().toLowerCase();
-    const sortMode = sortSelect.value;
+    const keyword = searchInput?.value.trim().toLowerCase() || '';
+    const sortMode = sortSelect?.value || 'newest';
 
     let result = bookmarks.filter((bm) => {
       if (!keyword) return true;
@@ -581,13 +507,10 @@ const BookmarkManager = (() => {
 
     result = result.sort((a, b) => {
       switch (sortMode) {
-        case 'title-asc':
-          return a.title.localeCompare(b.title);
-        case 'title-desc':
-          return b.title.localeCompare(a.title);
+        case 'title-asc': return a.title.localeCompare(b.title);
+        case 'title-desc': return b.title.localeCompare(a.title);
         case 'newest':
-        default:
-          return b.createdAt - a.createdAt;
+        default: return b.createdAt - a.createdAt;
       }
     });
 
@@ -597,43 +520,41 @@ const BookmarkManager = (() => {
   function createBookmarkRow(item) {
     const row = document.createElement('div');
     row.className = 'row-card p-3 flex flex-wrap items-center justify-between gap-3';
-
     row.innerHTML = `
       <div class="min-w-[12rem]">
         <a href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer"
-           aria-label="Buka tautan ${escapeHTML(item.title)} di tab baru"
            class="font-semibold text-sm text-brand hover:underline inline-flex items-center gap-1">
           ${escapeHTML(item.title)} <i class="ti ti-external-link text-xs" aria-hidden="true"></i>
         </a>
         <div class="flex flex-wrap items-center gap-2 mt-1">
           <span class="badge badge-cat">${escapeHTML(item.category)}</span>
-          <span class="text-xs text-inkmuted font-medium truncate max-w-[16rem] inline-block align-middle">${escapeHTML(item.url)}</span>
+          <span class="text-xs text-inkmuted truncate max-w-[16rem] inline-block align-middle">${escapeHTML(item.url)}</span>
         </div>
-        ${item.note ? `<p class="text-xs text-inkmuted font-medium mt-1">${escapeHTML(item.note)}</p>` : ''}
+        ${item.note ? `<p class="text-xs text-inkmuted mt-1">${escapeHTML(item.note)}</p>` : ''}
       </div>
       <div class="flex gap-1">
-        <button type="button" class="btn-edit p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-[#EDE9DA]" aria-label="Ubah bookmark ${escapeHTML(item.title)}">
-          <i class="ti ti-pencil text-base" aria-hidden="true"></i>
+        <button type="button" class="btn-edit p-2 rounded hover:bg-[#EDE9DA]" aria-label="Ubah bookmark">
+          <i class="ti ti-pencil" aria-hidden="true"></i>
         </button>
-        <button type="button" class="btn-delete p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-[#EDE9DA]" aria-label="Hapus bookmark ${escapeHTML(item.title)}">
-          <i class="ti ti-trash text-rust text-base" aria-hidden="true"></i>
+        <button type="button" class="btn-delete p-2 rounded hover:bg-[#EDE9DA]" aria-label="Hapus bookmark">
+          <i class="ti ti-trash text-rust" aria-hidden="true"></i>
         </button>
       </div>
     `;
 
-    row.querySelector('.btn-edit').addEventListener('click', () => openEditModal(item.id));
-    row.querySelector('.btn-delete').addEventListener('click', () => openDeleteModal(item.id));
+    row.querySelector('.btn-edit')?.addEventListener('click', () => openEditModal(item.id));
+    row.querySelector('.btn-delete')?.addEventListener('click', () => openDeleteModal(item.id));
     return row;
   }
 
   function render() {
     const visible = getVisibleBookmarks();
-
+    if (!listContainer) return;
     listContainer.innerHTML = '';
     if (visible.length === 0) {
-      emptyState.classList.remove('hidden');
+      emptyState?.classList.remove('hidden');
     } else {
-      emptyState.classList.add('hidden');
+      emptyState?.classList.add('hidden');
       const fragment = document.createDocumentFragment();
       visible.forEach((item) => fragment.appendChild(createBookmarkRow(item)));
       listContainer.appendChild(fragment);
@@ -642,18 +563,14 @@ const BookmarkManager = (() => {
 
   function init() {
     [searchInput, sortSelect].forEach((el) => {
-      el.addEventListener('input', render);
-      el.addEventListener('change', render);
+      el?.addEventListener('input', render);
+      el?.addEventListener('change', render);
     });
     render();
   }
 
   return { init };
 })();
-
-/* ============================================================================
-   5. MODUL QUIZ APP
-   ============================================================================ */
 
 const QuizApp = (() => {
   const QUESTIONS = [
@@ -690,12 +607,10 @@ const QuizApp = (() => {
   ];
 
   const TOTAL_QUESTIONS = QUESTIONS.length;
-
   let currentIndex = 0;
   let score = 0;
   let hasAnsweredCurrent = false;
 
-  // --- Referensi DOM ---
   const startScreen = document.getElementById('quiz-start-screen');
   const questionScreen = document.getElementById('quiz-question-screen');
   const resultScreen = document.getElementById('quiz-result-screen');
@@ -720,8 +635,8 @@ const QuizApp = (() => {
   const highscoreTotalEl = document.getElementById('quiz-highscore-total');
 
   function showScreen(screen) {
-    [startScreen, questionScreen, resultScreen].forEach((el) => el.classList.add('hidden'));
-    screen.classList.remove('hidden');
+    [startScreen, questionScreen, resultScreen].forEach((el) => el?.classList.add('hidden'));
+    screen?.classList.remove('hidden');
   }
 
   function getHighScore() {
@@ -729,8 +644,8 @@ const QuizApp = (() => {
   }
 
   function updateHighScoreDisplay() {
-    highscoreEl.textContent = getHighScore();
-    highscoreTotalEl.textContent = TOTAL_QUESTIONS;
+    if (highscoreEl) highscoreEl.textContent = getHighScore();
+    if (highscoreTotalEl) highscoreTotalEl.textContent = TOTAL_QUESTIONS;
   }
 
   function maybeSaveHighScore(finalScore) {
@@ -744,7 +659,7 @@ const QuizApp = (() => {
     currentIndex = 0;
     score = 0;
     hasAnsweredCurrent = false;
-    totalNumberEl.textContent = TOTAL_QUESTIONS;
+    if (totalNumberEl) totalNumberEl.textContent = TOTAL_QUESTIONS;
     showScreen(questionScreen);
     renderQuestion();
   }
@@ -753,22 +668,20 @@ const QuizApp = (() => {
     hasAnsweredCurrent = false;
     const item = QUESTIONS[currentIndex];
 
-    currentNumberEl.textContent = currentIndex + 1;
-    currentScoreEl.textContent = score;
-    const progressPercent = Math.round((currentIndex / TOTAL_QUESTIONS) * 100);
-    progressBar.style.width = `${progressPercent}%`;
-    progressBar.parentElement.setAttribute('aria-valuenow', progressPercent.toString());
-    questionTextEl.textContent = item.question;
-    feedbackEl.textContent = '';
-    nextBtn.classList.add('hidden');
+    if (currentNumberEl) currentNumberEl.textContent = currentIndex + 1;
+    if (currentScoreEl) currentScoreEl.textContent = score;
+    if (progressBar) progressBar.style.width = `${(currentIndex / TOTAL_QUESTIONS) * 100}%`;
+    if (questionTextEl) questionTextEl.textContent = item.question;
+    if (feedbackEl) feedbackEl.textContent = '';
+    nextBtn?.classList.add('hidden');
 
+    if (!optionsContainer) return;
     optionsContainer.innerHTML = '';
     item.options.forEach((optionText, optionIndex) => {
       const optionEl = document.createElement('button');
       optionEl.type = 'button';
-      optionEl.className = 'quiz-option w-full text-left font-medium';
+      optionEl.className = 'quiz-option w-full text-left';
       optionEl.textContent = optionText;
-      optionEl.setAttribute('aria-label', `Pilihan ${optionIndex + 1}: ${optionText}`);
       optionEl.addEventListener('click', () => handleAnswer(optionIndex, optionEl));
       optionsContainer.appendChild(optionEl);
     });
@@ -792,24 +705,27 @@ const QuizApp = (() => {
 
     if (isCorrect) {
       score += 1;
-      feedbackEl.textContent = 'Benar!';
-      feedbackEl.className = 'text-sm font-semibold mb-4 min-h-[1.25rem] text-leaf';
+      if (feedbackEl) {
+        feedbackEl.textContent = 'Benar!';
+        feedbackEl.className = 'text-sm font-semibold mb-4 min-h-[1.25rem] text-leaf';
+      }
     } else {
-      feedbackEl.textContent = `Kurang tepat. Jawaban yang benar: ${item.options[item.answerIndex]}`;
-      feedbackEl.className = 'text-sm font-semibold mb-4 min-h-[1.25rem] text-rust';
+      if (feedbackEl) {
+        feedbackEl.textContent = `Kurang tepat. Jawaban yang benar: ${item.options[item.answerIndex]}`;
+        feedbackEl.className = 'text-sm font-semibold mb-4 min-h-[1.25rem] text-rust';
+      }
     }
 
-    currentScoreEl.textContent = score;
-    const nextPercent = Math.round(((currentIndex + 1) / TOTAL_QUESTIONS) * 100);
-    progressBar.style.width = `${nextPercent}%`;
-    progressBar.parentElement.setAttribute('aria-valuenow', nextPercent.toString());
+    if (currentScoreEl) currentScoreEl.textContent = score;
+    if (progressBar) progressBar.style.width = `${((currentIndex + 1) / TOTAL_QUESTIONS) * 100}%`;
 
     const isLastQuestion = currentIndex === TOTAL_QUESTIONS - 1;
-    nextBtn.textContent = '';
-    nextBtn.innerHTML = isLastQuestion
-      ? 'Lihat Hasil <i class="ti ti-flag text-base" aria-hidden="true"></i>'
-      : 'Soal Berikutnya <i class="ti ti-arrow-right text-base" aria-hidden="true"></i>';
-    nextBtn.classList.remove('hidden');
+    if (nextBtn) {
+      nextBtn.innerHTML = isLastQuestion
+        ? 'Lihat Hasil <i class="ti ti-flag" aria-hidden="true"></i>'
+        : 'Soal Berikutnya <i class="ti ti-arrow-right" aria-hidden="true"></i>';
+      nextBtn.classList.remove('hidden');
+    }
   }
 
   function goToNext() {
@@ -826,16 +742,18 @@ const QuizApp = (() => {
     maybeSaveHighScore(score);
     updateHighScoreDisplay();
 
-    finalScoreEl.textContent = score;
-    finalTotalEl.textContent = TOTAL_QUESTIONS;
+    if (finalScoreEl) finalScoreEl.textContent = score;
+    if (finalTotalEl) finalTotalEl.textContent = TOTAL_QUESTIONS;
 
     const ratio = score / TOTAL_QUESTIONS;
-    if (ratio === 1) {
-      resultMessageEl.textContent = 'Sempurna! Semua jawaban benar.';
-    } else if (ratio >= 0.6) {
-      resultMessageEl.textContent = 'Bagus! Pemahamanmu sudah cukup solid.';
-    } else {
-      resultMessageEl.textContent = 'Jangan menyerah, coba lagi untuk hasil lebih baik.';
+    if (resultMessageEl) {
+      if (ratio === 1) {
+        resultMessageEl.textContent = 'Sempurna! Semua jawaban benar.';
+      } else if (ratio >= 0.6) {
+        resultMessageEl.textContent = 'Bagus! Pemahamanmu sudah cukup solid.';
+      } else {
+        resultMessageEl.textContent = 'Jangan menyerah, coba lagi untuk hasil lebih baik.';
+      }
     }
 
     showScreen(resultScreen);
@@ -843,18 +761,14 @@ const QuizApp = (() => {
 
   function init() {
     updateHighScoreDisplay();
-    startBtn.addEventListener('click', startQuiz);
-    restartBtn.addEventListener('click', startQuiz);
-    nextBtn.addEventListener('click', goToNext);
+    startBtn?.addEventListener('click', startQuiz);
+    restartBtn?.addEventListener('click', startQuiz);
+    nextBtn?.addEventListener('click', goToNext);
     showScreen(startScreen);
   }
 
   return { init };
 })();
-
-/* ============================================================================
-   6. BOOTSTRAP APLIKASI
-   ============================================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
   TabNavigation.init();

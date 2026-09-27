@@ -1,214 +1,175 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="LaciKu — catatan pengeluaran harian, bookmark tautan favorit, dan kuis interaktif dalam satu halaman." />
-  <meta name="robots" content="index, follow" />
-  <title>LaciKu — Catatan, Tautan &amp; Kuis</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="LaciKu — catatan pengeluaran harian, bookmark tautan favorit, dan kuis interaktif dalam satu halaman." />
+<title>LaciKu — Catatan, Tautan &amp; Kuis</title>
 
-  <!-- Canonical persis sesuai URL tugas di Delcom -->
-  <link rel="canonical" href="https://ifs24042-p3.netlify.app" />
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<!-- Tabler Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
 
-  <!-- Tabler Icons Webfont CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            paper: '#F2EEDD',
-            surface: '#FFFDF7',
-            ink: '#2B2620',
-            inkmuted: '#4A4335', /* Rasio kontras tinggi (WCAG AA > 6:1) */
-            brand: {
-              DEFAULT: '#2F4858',
-              dark: '#1D2E38',
-              light: '#4A6A7C',
-            },
-            gold: '#C98A2C',
-            leaf: '#2E5537',
-            rust: '#9C3429',
+<!-- Tailwind CSS (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#F2EEDD',
+          surface: '#FFFDF7',
+          ink: '#2B2620',
+          inkmuted: '#6B6355',
+          brand: {
+            DEFAULT: '#2F4858',
+            dark: '#1D2E38',
+            light: '#4A6A7C',
           },
-          fontFamily: {
-            display: ['Fraunces', 'serif'],
-            body: ['Work Sans', 'sans-serif'],
-          },
+          gold: '#C98A2C',
+          leaf: '#3F6B4A',
+          rust: '#B0483C',
+        },
+        fontFamily: {
+          display: ['Fraunces', 'serif'],
+          body: ['Work Sans', 'sans-serif'],
         },
       },
-    };
-  </script>
+    },
+  };
+</script>
 
-  <style>
-    :root { color-scheme: light; }
-    body { background-color: #F2EEDD; }
+<style>
+  :root { color-scheme: light; }
+  body { background-color: #F2EEDD; }
 
-    /* Aksesibilitas: Skip Link Bypass Block */
-    .skip-link {
-      position: absolute;
-      top: -60px;
-      left: 10px;
-      background: #2F4858;
-      color: #FFFDF7;
-      padding: 10px 18px;
-      font-weight: 700;
-      font-size: 0.875rem;
-      border-radius: 0 0 6px 6px;
-      text-decoration: underline;
-      z-index: 9999;
-      transition: top 0.2s ease-in-out;
-    }
-    .skip-link:focus {
-      top: 0;
-    }
+  .tab-btn {
+    clip-path: polygon(6% 0%, 94% 0%, 100% 100%, 0% 100%);
+    transition: transform .15s ease, background-color .15s ease;
+  }
+  .tab-btn[aria-selected="true"] {
+    background-color: #FFFDF7;
+    color: #2B2620;
+    transform: translateY(-2px);
+  }
+  .tab-btn[aria-selected="false"] {
+    background-color: #E4DEC8;
+    color: #4F4A3F;
+  }
+  .tab-btn[aria-selected="false"]:hover {
+    background-color: #DAD3B9;
+    color: #2B2620;
+  }
 
-    /* --- Folder-tab navigation --- */
-    .tab-btn {
-      clip-path: polygon(6% 0%, 94% 0%, 100% 100%, 0% 100%);
-      transition: transform .15s ease, background-color .15s ease;
-      min-height: 48px;
-    }
-    .tab-btn[aria-selected="true"] {
-      background-color: #FFFDF7;
-      color: #2B2620;
-      transform: translateY(-2px);
-    }
-    .tab-btn[aria-selected="false"] {
-      background-color: #E4DEC8;
-      color: #38342C;
-    }
-    .tab-btn[aria-selected="false"]:hover {
-      background-color: #DAD3B9;
-      color: #2B2620;
-    }
+  .panel { display: none; }
+  .panel.is-active { display: block; }
 
-    /* Panel Switching */
-    .panel { display: none; }
-    .panel.is-active { display: block; }
+  .field-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6B6355;
+  }
 
-    .field-label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #4A4335;
-    }
+  .input-base {
+    background-color: #FFFDF7;
+    border: 1px solid #D9D2BC;
+    border-radius: 0.375rem;
+    padding: 0.55rem 0.75rem;
+    width: 100%;
+    font-size: 0.9rem;
+    color: #2B2620;
+  }
+  .input-base:focus {
+    outline: 2px solid #2F4858;
+    outline-offset: 1px;
+    border-color: #2F4858;
+  }
+  .input-base.input-error {
+    border-color: #B0483C;
+  }
+  .error-text {
+    color: #B0483C;
+    font-size: 0.75rem;
+    margin-top: 0.15rem;
+    min-height: 1rem;
+  }
 
-    .input-base {
-      background-color: #FFFDF7;
-      border: 1px solid #D9D2BC;
-      border-radius: 0.375rem;
-      padding: 0.65rem 0.85rem;
-      width: 100%;
-      font-size: 0.95rem;
-      color: #2B2620;
-      min-height: 44px;
-    }
-    .input-base:focus {
-      outline: 2px solid #2F4858;
-      outline-offset: 1px;
-      border-color: #2F4858;
-    }
-    .input-base.input-error {
-      border-color: #9C3429;
-    }
-    .error-text {
-      color: #9C3429;
-      font-size: 0.8rem;
-      margin-top: 0.25rem;
-      min-height: 1.1rem;
-      font-weight: 600;
-    }
+  .btn {
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 0.375rem;
+    transition: filter .15s ease;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn-primary { background-color: #2F4858; color: #FFFDF7; }
+  .btn-ghost { background-color: transparent; color: #2F4858; border: 1px solid #2F4858; }
+  .btn-danger { background-color: #B0483C; color: #FFFDF7; }
+  .btn-gold { background-color: #C98A2C; color: #FFFDF7; }
 
-    .btn {
-      font-weight: 600;
-      font-size: 0.875rem;
-      padding: 0.65rem 1.25rem;
-      border-radius: 0.375rem;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: filter .15s ease;
-    }
-    .btn:hover { filter: brightness(1.08); }
-    .btn-primary { background-color: #2F4858; color: #FFFDF7; }
-    .btn-ghost { background-color: transparent; color: #2F4858; border: 1px solid #2F4858; }
-    .btn-danger { background-color: #9C3429; color: #FFFDF7; }
+  .row-card {
+    background-color: #FFFDF7;
+    border: 1px solid #E4DEC8;
+    border-radius: 0.5rem;
+  }
 
-    .row-card {
-      background-color: #FFFDF7;
-      border: 1px solid #E4DEC8;
-      border-radius: 0.5rem;
-    }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+  }
+  .badge-income { background-color: #E4EEE5; color: #3F6B4A; }
+  .badge-expense { background-color: #F5E4E1; color: #B0483C; }
+  .badge-cat { background-color: #EDE9DA; color: #6B6355; }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-    }
-    .badge-income { background-color: #E4EEE5; color: #2E5537; }
-    .badge-expense { background-color: #F5E4E1; color: #9C3429; }
-    .badge-cat { background-color: #EDE9DA; color: #38342C; }
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background-color: rgba(43, 38, 32, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 50;
+  }
+  .modal-overlay.is-open { display: flex; }
 
-    /* Modal CSS murni (Bebas dari bentrok aria-hidden-focus) */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background-color: rgba(43, 38, 32, 0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      z-index: 50;
-    }
-    .modal-overlay.is-open { display: flex; }
+  .modal-box {
+    background-color: #FFFDF7;
+    border-radius: 0.6rem;
+    width: 100%;
+    max-width: 28rem;
+    padding: 1.5rem;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
 
-    .modal-box {
-      background-color: #FFFDF7;
-      border-radius: 0.6rem;
-      width: 100%;
-      max-width: 28rem;
-      padding: 1.5rem;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
+  .quiz-option {
+    background-color: #FFFDF7;
+    border: 1px solid #D9D2BC;
+    border-radius: 0.5rem;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .quiz-option:hover { border-color: #2F4858; }
+  .quiz-option.is-correct { background-color: #E4EEE5; border-color: #3F6B4A; }
+  .quiz-option.is-wrong { background-color: #F5E4E1; border-color: #B0483C; }
+  .quiz-option.is-disabled { pointer-events: none; opacity: 0.85; }
 
-    .quiz-option {
-      background-color: #FFFDF7;
-      border: 1px solid #D9D2BC;
-      border-radius: 0.5rem;
-      padding: 0.9rem 1.1rem;
-      cursor: pointer;
-      min-height: 48px;
-      font-weight: 500;
-      color: #2B2620;
-      transition: border-color .15s ease, background-color .15s ease;
-    }
-    .quiz-option:hover { border-color: #2F4858; }
-    .quiz-option.is-correct { background-color: #E4EEE5; border-color: #2E5537; color: #2E5537; font-weight: 700; }
-    .quiz-option.is-wrong { background-color: #F5E4E1; border-color: #9C3429; color: #9C3429; font-weight: 700; }
-    .quiz-option.is-disabled { pointer-events: none; opacity: 0.9; }
-
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-thumb { background-color: #D9D2BC; border-radius: 4px; }
-  </style>
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background-color: #D9D2BC; border-radius: 4px; }
+</style>
 </head>
 
-<body class="font-body text-ink min-h-screen flex flex-col antialiased">
-
-  <!-- SKIP TO CONTENT -->
-  <a href="#main-content" class="skip-link">Lewati ke Konten Utama</a>
+<body class="font-body text-ink min-h-screen flex flex-col">
 
   <!-- ============ HEADER ============ -->
   <header class="bg-brand text-paper">
@@ -216,12 +177,12 @@
       <i class="ti ti-archive text-3xl text-gold" aria-hidden="true"></i>
       <div>
         <h1 class="font-display text-2xl sm:text-3xl font-semibold leading-tight">LaciKu</h1>
-        <p class="text-xs sm:text-sm text-paper font-medium">Satu laci, tiga catatan: keuangan, tautan, dan kuis.</p>
+        <p class="text-xs sm:text-sm text-paper/70">Satu laci, tiga catatan: keuangan, tautan, dan kuis.</p>
       </div>
     </div>
   </header>
 
-  <!-- ============ NAV TAB (Folder Style + WAI-ARIA) ============ -->
+  <!-- ============ NAV TAB ============ -->
   <nav class="max-w-5xl mx-auto w-full px-4 sm:px-6 pt-4" aria-label="Navigasi fitur">
     <div class="flex gap-1" role="tablist">
       <button
@@ -232,7 +193,7 @@
         aria-controls="panel-expense"
         aria-selected="false"
       >
-        <i class="ti ti-wallet text-base" aria-hidden="true"></i>
+        <i class="ti ti-wallet" aria-hidden="true"></i>
         <span>Pengeluaran</span>
       </button>
       <button
@@ -243,7 +204,7 @@
         aria-controls="panel-bookmark"
         aria-selected="false"
       >
-        <i class="ti ti-bookmarks text-base" aria-hidden="true"></i>
+        <i class="ti ti-bookmarks" aria-hidden="true"></i>
         <span>Bookmark</span>
       </button>
       <button
@@ -254,25 +215,22 @@
         aria-controls="panel-quiz"
         aria-selected="false"
       >
-        <i class="ti ti-help-hexagon text-base" aria-hidden="true"></i>
+        <i class="ti ti-help-hexagon" aria-hidden="true"></i>
         <span>Kuis</span>
       </button>
     </div>
   </nav>
 
   <!-- ============ MAIN ============ -->
-  <main id="main-content" class="flex-1 w-full" tabindex="-1">
+  <main class="flex-1 w-full">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
       <div class="bg-surface border border-[#E4DEC8] rounded-b-lg rounded-tr-lg p-4 sm:p-6">
 
-        <!-- ============================================================ -->
-        <!-- PANEL 1: EXPENSE TRACKER                                      -->
-        <!-- ============================================================ -->
+        <!-- PANEL 1: EXPENSE -->
         <section id="panel-expense" class="panel" role="tabpanel" aria-labelledby="tab-btn-expense">
           <h2 class="font-display text-xl font-semibold mb-1">Catatan Pengeluaran Harian</h2>
           <p class="text-sm text-inkmuted mb-5">Catat pemasukan dan pengeluaran harianmu, lalu pantau saldonya.</p>
 
-          <!-- Ringkasan -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
             <div class="row-card p-4">
               <p class="field-label">Total Pemasukan</p>
@@ -288,17 +246,16 @@
             </div>
           </div>
 
-          <!-- Form Tambah Transaksi -->
           <form id="expense-form" novalidate class="row-card p-4 mb-6">
-            <h3 class="font-semibold text-base mb-3">Tambah Transaksi</h3>
+            <h3 class="font-semibold text-sm mb-3">Tambah Transaksi</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="field-label" for="expense-title">Judul / Deskripsi *</label>
+                <label class="field-label" for="expense-title">Judul / Deskripsi</label>
                 <input id="expense-title" name="title" type="text" class="input-base mt-1" placeholder="Contoh: Makan siang" />
                 <p class="error-text" id="expense-title-error"></p>
               </div>
               <div>
-                <label class="field-label" for="expense-category">Kategori *</label>
+                <label class="field-label" for="expense-category">Kategori</label>
                 <select id="expense-category" name="category" class="input-base mt-1">
                   <option value="Makanan">Makanan</option>
                   <option value="Transportasi">Transportasi</option>
@@ -311,100 +268,85 @@
                 </select>
               </div>
               <div>
-                <label class="field-label" for="expense-amount">Jumlah (Rp) *</label>
+                <label class="field-label" for="expense-amount">Jumlah (Rp)</label>
                 <input id="expense-amount" name="amount" type="number" min="1" step="1" class="input-base mt-1" placeholder="Contoh: 25000" />
                 <p class="error-text" id="expense-amount-error"></p>
               </div>
               <div>
-                <label class="field-label" for="expense-type">Tipe *</label>
+                <label class="field-label" for="expense-type">Tipe</label>
                 <select id="expense-type" name="type" class="input-base mt-1">
                   <option value="pengeluaran">Pengeluaran</option>
                   <option value="pemasukan">Pemasukan</option>
                 </select>
               </div>
               <div class="sm:col-span-2">
-                <label class="field-label" for="expense-date">Tanggal *</label>
+                <label class="field-label" for="expense-date">Tanggal</label>
                 <input id="expense-date" name="date" type="date" class="input-base mt-1" />
                 <p class="error-text" id="expense-date-error"></p>
               </div>
             </div>
             <div class="mt-4">
               <button type="submit" class="btn btn-primary">
-                <i class="ti ti-plus text-base" aria-hidden="true"></i> Tambah Transaksi
+                <i class="ti ti-plus" aria-hidden="true"></i> Tambah Transaksi
               </button>
             </div>
           </form>
 
-          <!-- Pencarian & Filter -->
           <div class="flex flex-col sm:flex-row gap-3 mb-4">
             <div class="flex-1">
-              <label for="expense-search" class="sr-only">Cari transaksi berdasarkan judul</label>
-              <input id="expense-search" type="text" class="input-base" placeholder="Cari berdasarkan judul..." />
+              <input id="expense-search" type="text" class="input-base" placeholder="Cari berdasarkan judul..." aria-label="Cari transaksi berdasarkan judul" />
             </div>
-            <div>
-              <label for="expense-filter-type" class="sr-only">Filter berdasarkan tipe</label>
-              <select id="expense-filter-type" class="input-base sm:w-44">
-                <option value="all">Semua Tipe</option>
-                <option value="pemasukan">Pemasukan</option>
-                <option value="pengeluaran">Pengeluaran</option>
-              </select>
-            </div>
-            <div>
-              <label for="expense-filter-category" class="sr-only">Filter berdasarkan kategori</label>
-              <select id="expense-filter-category" class="input-base sm:w-44">
-                <option value="all">Semua Kategori</option>
-                <option value="Makanan">Makanan</option>
-                <option value="Transportasi">Transportasi</option>
-                <option value="Belanja">Belanja</option>
-                <option value="Hiburan">Hiburan</option>
-                <option value="Tagihan">Tagihan</option>
-                <option value="Pendidikan">Pendidikan</option>
-                <option value="Gaji">Gaji</option>
-                <option value="Lainnya">Lainnya</option>
-              </select>
-            </div>
-            <div>
-              <label for="expense-sort" class="sr-only">Urutkan transaksi</label>
-              <select id="expense-sort" class="input-base sm:w-48">
-                <option value="newest">Terbaru</option>
-                <option value="oldest">Terlama</option>
-                <option value="amount-desc">Jumlah Terbesar</option>
-                <option value="amount-asc">Jumlah Terkecil</option>
-              </select>
-            </div>
+            <select id="expense-filter-type" class="input-base sm:w-44" aria-label="Filter berdasarkan tipe transaksi">
+              <option value="all">Semua Tipe</option>
+              <option value="pemasukan">Pemasukan</option>
+              <option value="pengeluaran">Pengeluaran</option>
+            </select>
+            <select id="expense-filter-category" class="input-base sm:w-44" aria-label="Filter berdasarkan kategori">
+              <option value="all">Semua Kategori</option>
+              <option value="Makanan">Makanan</option>
+              <option value="Transportasi">Transportasi</option>
+              <option value="Belanja">Belanja</option>
+              <option value="Hiburan">Hiburan</option>
+              <option value="Tagihan">Tagihan</option>
+              <option value="Pendidikan">Pendidikan</option>
+              <option value="Gaji">Gaji</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+            <select id="expense-sort" class="input-base sm:w-48" aria-label="Urutkan transaksi">
+              <option value="newest">Terbaru</option>
+              <option value="oldest">Terlama</option>
+              <option value="amount-desc">Jumlah Terbesar</option>
+              <option value="amount-asc">Jumlah Terkecil</option>
+            </select>
           </div>
 
-          <!-- Daftar Transaksi -->
           <div id="expense-list" class="space-y-2"></div>
           <div id="expense-empty" class="hidden text-center py-10 text-inkmuted">
             <i class="ti ti-file-off text-3xl mb-2 block" aria-hidden="true"></i>
-            <p class="font-medium text-sm">Belum ada transaksi. Tambahkan transaksi pertamamu di atas.</p>
+            Belum ada transaksi. Tambahkan transaksi pertamamu di atas.
           </div>
         </section>
 
-        <!-- ============================================================ -->
-        <!-- PANEL 2: BOOKMARK MANAGER                                     -->
-        <!-- ============================================================ -->
+        <!-- PANEL 2: BOOKMARK -->
         <section id="panel-bookmark" class="panel" role="tabpanel" aria-labelledby="tab-btn-bookmark">
           <h2 class="font-display text-xl font-semibold mb-1">Bookmark / Link Manager</h2>
           <p class="text-sm text-inkmuted mb-5">Simpan tautan favoritmu lengkap dengan kategori dan catatan singkat.</p>
 
-          <!-- Form Tambah Bookmark -->
           <form id="bookmark-form" novalidate class="row-card p-4 mb-6">
-            <h3 class="font-semibold text-base mb-3">Tambah Bookmark</h3>
+            <h3 class="font-semibold text-sm mb-3">Tambah Bookmark</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label class="field-label" for="bookmark-title">Nama / Judul *</label>
+                <label class="field-label" for="bookmark-title">Nama / Judul</label>
                 <input id="bookmark-title" name="title" type="text" class="input-base mt-1" placeholder="Contoh: MDN Web Docs" />
                 <p class="error-text" id="bookmark-title-error"></p>
               </div>
               <div>
-                <label class="field-label" for="bookmark-url">URL *</label>
+                <label class="field-label" for="bookmark-url">URL</label>
                 <input id="bookmark-url" name="url" type="text" class="input-base mt-1" placeholder="https://developer.mozilla.org" />
                 <p class="error-text" id="bookmark-url-error"></p>
               </div>
               <div>
-                <label class="field-label" for="bookmark-category">Kategori / Tag *</label>
+                <label class="field-label" for="bookmark-category">Kategori / Tag</label>
                 <input id="bookmark-category" name="category" type="text" class="input-base mt-1" placeholder="Contoh: Referensi" />
                 <p class="error-text" id="bookmark-category-error"></p>
               </div>
@@ -415,88 +357,77 @@
             </div>
             <div class="mt-4">
               <button type="submit" class="btn btn-primary">
-                <i class="ti ti-plus text-base" aria-hidden="true"></i> Tambah Bookmark
+                <i class="ti ti-plus" aria-hidden="true"></i> Tambah Bookmark
               </button>
             </div>
           </form>
 
-          <!-- Pencarian & Sorting -->
           <div class="flex flex-col sm:flex-row gap-3 mb-4">
             <div class="flex-1">
-              <label for="bookmark-search" class="sr-only">Cari bookmark berdasarkan nama, URL, atau kategori</label>
-              <input id="bookmark-search" type="text" class="input-base" placeholder="Cari nama, URL, atau kategori..." />
+              <input id="bookmark-search" type="text" class="input-base" placeholder="Cari nama, URL, atau kategori..." aria-label="Cari bookmark berdasarkan nama, URL, atau kategori" />
             </div>
-            <div>
-              <label for="bookmark-sort" class="sr-only">Urutkan bookmark</label>
-              <select id="bookmark-sort" class="input-base sm:w-52">
-                <option value="newest">Terbaru</option>
-                <option value="title-asc">Judul A–Z</option>
-                <option value="title-desc">Judul Z–A</option>
-              </select>
-            </div>
+            <select id="bookmark-sort" class="input-base sm:w-52" aria-label="Urutkan bookmark">
+              <option value="newest">Terbaru</option>
+              <option value="title-asc">Judul A–Z</option>
+              <option value="title-desc">Judul Z–A</option>
+            </select>
           </div>
 
-          <!-- Daftar Bookmark -->
           <div id="bookmark-list" class="space-y-2"></div>
           <div id="bookmark-empty" class="hidden text-center py-10 text-inkmuted">
             <i class="ti ti-bookmark-off text-3xl mb-2 block" aria-hidden="true"></i>
-            <p class="font-medium text-sm">Belum ada bookmark tersimpan. Tambahkan tautan pertamamu di atas.</p>
+            Belum ada bookmark tersimpan. Tambahkan tautan pertamamu di atas.
           </div>
         </section>
 
-        <!-- ============================================================ -->
-        <!-- PANEL 3: QUIZ APP                                             -->
-        <!-- ============================================================ -->
+        <!-- PANEL 3: QUIZ -->
         <section id="panel-quiz" class="panel" role="tabpanel" aria-labelledby="tab-btn-quiz">
           <h2 class="font-display text-xl font-semibold mb-1">Kuis Interaktif</h2>
           <p class="text-sm text-inkmuted mb-5">Uji pemahaman dasar web-mu lewat enam pertanyaan singkat.</p>
 
           <div class="row-card p-4 mb-5 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2 text-sm font-semibold text-ink">
-              <i class="ti ti-trophy text-gold text-lg" aria-hidden="true"></i>
-              <span>Skor Tertinggi: <strong id="quiz-highscore" class="font-bold">0</strong> / <span id="quiz-highscore-total">6</span></span>
+            <div class="flex items-center gap-2 text-sm">
+              <i class="ti ti-trophy text-gold" aria-hidden="true"></i>
+              <span>Skor Tertinggi: <strong id="quiz-highscore">0</strong> / <span id="quiz-highscore-total">6</span></span>
             </div>
           </div>
 
-          <!-- Layar Mulai -->
           <div id="quiz-start-screen" class="row-card p-8 text-center">
             <i class="ti ti-help-hexagon text-4xl text-brand mb-3 block" aria-hidden="true"></i>
             <h3 class="font-display text-lg font-semibold mb-2">Siap menguji pemahamanmu?</h3>
             <p class="text-sm text-inkmuted mb-4">Kuis terdiri dari 6 soal pilihan ganda seputar dasar web.</p>
-            <button id="quiz-start-btn" type="button" class="btn btn-primary" aria-label="Mulai Kuis">
-              <i class="ti ti-player-play text-base" aria-hidden="true"></i> Mulai Kuis
+            <button id="quiz-start-btn" type="button" class="btn btn-primary">
+              <i class="ti ti-player-play" aria-hidden="true"></i> Mulai Kuis
             </button>
           </div>
 
-          <!-- Layar Soal -->
           <div id="quiz-question-screen" class="hidden">
-            <div class="flex items-center justify-between mb-3 text-sm text-inkmuted font-medium">
+            <div class="flex items-center justify-between mb-3 text-sm text-inkmuted">
               <span>Soal <span id="quiz-current-number">1</span> dari <span id="quiz-total-number">6</span></span>
-              <span>Skor: <strong id="quiz-current-score" class="text-ink">0</strong></span>
+              <span>Skor: <strong id="quiz-current-score">0</strong></span>
             </div>
-            <div class="w-full h-2 bg-[#E4DEC8] rounded-full mb-5 overflow-hidden" role="progressbar" aria-label="Progres pengerjaan kuis" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-              <div id="quiz-progress-bar" class="h-full bg-gold transition-all duration-300" style="width: 0%"></div>
+            <div class="w-full h-1.5 bg-[#E4DEC8] rounded-full mb-5 overflow-hidden">
+              <div id="quiz-progress-bar" class="h-full bg-gold" style="width: 0%"></div>
             </div>
             <div class="row-card p-5 mb-4">
-              <h3 id="quiz-question-text" class="font-display text-lg font-semibold mb-4 text-ink"></h3>
+              <h3 id="quiz-question-text" class="font-display text-lg font-semibold mb-4"></h3>
               <div id="quiz-options" class="space-y-2"></div>
             </div>
-            <p id="quiz-feedback" class="text-sm font-semibold mb-4 min-h-[1.25rem]" role="status" aria-live="polite"></p>
-            <button id="quiz-next-btn" type="button" class="btn btn-primary hidden" aria-label="Lanjut ke soal berikutnya">
-              Soal Berikutnya <i class="ti ti-arrow-right text-base" aria-hidden="true"></i>
+            <p id="quiz-feedback" class="text-sm font-semibold mb-4 min-h-[1.25rem]"></p>
+            <button id="quiz-next-btn" type="button" class="btn btn-primary hidden">
+              Soal Berikutnya <i class="ti ti-arrow-right" aria-hidden="true"></i>
             </button>
           </div>
 
-          <!-- Layar Hasil -->
           <div id="quiz-result-screen" class="hidden row-card p-8 text-center">
             <i class="ti ti-confetti text-4xl text-gold mb-3 block" aria-hidden="true"></i>
-            <h3 class="font-display text-xl font-semibold mb-2">Kuis Selesai!</h3>
+            <h3 class="font-display text-lg font-semibold mb-2">Kuis Selesai!</h3>
             <p class="text-3xl font-display font-semibold text-brand mb-1">
               <span id="quiz-final-score">0</span> / <span id="quiz-final-total">6</span>
             </p>
-            <p id="quiz-result-message" class="text-sm text-inkmuted font-medium mb-5"></p>
-            <button id="quiz-restart-btn" type="button" class="btn btn-primary" aria-label="Ulangi pengerjaan kuis">
-              <i class="ti ti-refresh text-base" aria-hidden="true"></i> Main Lagi
+            <p id="quiz-result-message" class="text-sm text-inkmuted mb-5"></p>
+            <button id="quiz-restart-btn" type="button" class="btn btn-primary">
+              <i class="ti ti-refresh" aria-hidden="true"></i> Main Lagi
             </button>
           </div>
         </section>
@@ -506,15 +437,13 @@
   </main>
 
   <!-- ============ FOOTER ============ -->
-  <footer class="bg-brand-dark text-paper text-xs">
+  <footer class="bg-brand-dark text-paper/70 text-xs">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center">
       LaciKu — Studi Kasus PABWE P3. Dibuat dengan HTML, Tailwind CSS, dan JavaScript murni.
     </div>
   </footer>
 
-  <!-- ============================================================ -->
-  <!-- MODAL: UBAH TRANSAKSI                                         -->
-  <!-- ============================================================ -->
+  <!-- MODAL: EXPENSE EDIT -->
   <div id="expense-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="expense-modal-title">
     <div class="modal-box">
       <h3 id="expense-modal-title" class="font-display text-lg font-semibold mb-4">Ubah Transaksi</h3>
@@ -558,31 +487,26 @@
           </div>
         </div>
         <div class="mt-5 flex gap-2 justify-end">
-          <button type="button" class="btn btn-ghost" data-close-modal="expense-modal" aria-label="Batal ubah transaksi">Batal</button>
-          <button type="submit" class="btn btn-primary" aria-label="Simpan perubahan transaksi">Simpan Perubahan</button>
+          <button type="button" class="btn btn-ghost" data-close-modal="expense-modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ============================================================ -->
-  <!-- MODAL: HAPUS TRANSAKSI                                        -->
-  <!-- ============================================================ -->
+  <!-- MODAL: EXPENSE DELETE -->
   <div id="expense-delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="expense-delete-title">
     <div class="modal-box max-w-sm">
       <h3 id="expense-delete-title" class="font-display text-lg font-semibold mb-2">Hapus Transaksi?</h3>
       <p class="text-sm text-inkmuted mb-5">Transaksi yang dihapus tidak dapat dikembalikan.</p>
-      <input type="hidden" id="expense-delete-id" />
       <div class="flex gap-2 justify-end">
-        <button type="button" class="btn btn-ghost" data-close-modal="expense-delete-modal" aria-label="Batal hapus transaksi">Batal</button>
-        <button type="button" id="expense-delete-confirm-btn" class="btn btn-danger" aria-label="Konfirmasi hapus transaksi">Hapus</button>
+        <button type="button" class="btn btn-ghost" data-close-modal="expense-delete-modal">Batal</button>
+        <button type="button" id="expense-delete-confirm-btn" class="btn btn-danger">Hapus</button>
       </div>
     </div>
   </div>
 
-  <!-- ============================================================ -->
-  <!-- MODAL: UBAH BOOKMARK                                          -->
-  <!-- ============================================================ -->
+  <!-- MODAL: BOOKMARK EDIT -->
   <div id="bookmark-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="bookmark-modal-title">
     <div class="modal-box">
       <h3 id="bookmark-modal-title" class="font-display text-lg font-semibold mb-4">Ubah Bookmark</h3>
@@ -610,29 +534,25 @@
           </div>
         </div>
         <div class="mt-5 flex gap-2 justify-end">
-          <button type="button" class="btn btn-ghost" data-close-modal="bookmark-modal" aria-label="Batal ubah bookmark">Batal</button>
-          <button type="submit" class="btn btn-primary" aria-label="Simpan perubahan bookmark">Simpan Perubahan</button>
+          <button type="button" class="btn btn-ghost" data-close-modal="bookmark-modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ============================================================ -->
-  <!-- MODAL: HAPUS BOOKMARK                                         -->
-  <!-- ============================================================ -->
+  <!-- MODAL: BOOKMARK DELETE -->
   <div id="bookmark-delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="bookmark-delete-title">
     <div class="modal-box max-w-sm">
       <h3 id="bookmark-delete-title" class="font-display text-lg font-semibold mb-2">Hapus Bookmark?</h3>
       <p class="text-sm text-inkmuted mb-5">Bookmark yang dihapus tidak dapat dikembalikan.</p>
-      <input type="hidden" id="bookmark-delete-id" />
       <div class="flex gap-2 justify-end">
-        <button type="button" class="btn btn-ghost" data-close-modal="bookmark-delete-modal" aria-label="Batal hapus bookmark">Batal</button>
-        <button type="button" id="bookmark-delete-confirm-btn" class="btn btn-danger" aria-label="Konfirmasi hapus bookmark">Hapus</button>
+        <button type="button" class="btn btn-ghost" data-close-modal="bookmark-delete-modal">Batal</button>
+        <button type="button" id="bookmark-delete-confirm-btn" class="btn btn-danger">Hapus</button>
       </div>
     </div>
   </div>
 
-  <!-- Script Eksternal -->
   <script src="assets/script.js"></script>
 </body>
 </html>
