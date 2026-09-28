@@ -24,15 +24,15 @@
           paper: '#EAF1FB',
           surface: '#FAFCFF',
           ink: '#0F1E3A',
-          inkmuted: '#5A6B85',
+          inkmuted: '#4C5D78',
           brand: {
             DEFAULT: '#1F4FD8',
             dark: '#12307F',
             light: '#4A78E8',
           },
           gold: '#F5A524',
-          leaf: '#1E8E5A',
-          rust: '#D64545',
+          leaf: '#13703F',
+          rust: '#B32B2B',
         },
         fontFamily: {
           display: ['Bricolage Grotesque', 'system-ui', 'sans-serif'],
@@ -77,7 +77,7 @@
   .field-label {
     font-size: 0.8rem;
     font-weight: 600;
-    color: #5A6B85;
+    color: #4C5D78;
   }
 
   .input-base {
@@ -95,10 +95,10 @@
     border-color: #1F4FD8;
   }
   .input-base.input-error {
-    border-color: #D64545;
+    border-color: #B32B2B;
   }
   .error-text {
-    color: #D64545;
+    color: #B32B2B;
     font-size: 0.75rem;
     margin-top: 0.15rem;
     min-height: 1rem;
@@ -114,7 +114,7 @@
   .btn:hover { filter: brightness(1.08); }
   .btn-primary { background-color: #1F4FD8; color: #FAFCFF; }
   .btn-ghost { background-color: transparent; color: #1F4FD8; border: 1px solid #1F4FD8; }
-  .btn-danger { background-color: #D64545; color: #FAFCFF; }
+  .btn-danger { background-color: #B32B2B; color: #FAFCFF; }
   .btn-gold { background-color: #F5A524; color: #0F1E3A; }
 
   .row-card {
@@ -132,9 +132,9 @@
     padding: 0.15rem 0.55rem;
     border-radius: 999px;
   }
-  .badge-income { background-color: #DDF3E8; color: #1E8E5A; }
-  .badge-expense { background-color: #FBE3E3; color: #D64545; }
-  .badge-cat { background-color: #E1EAF8; color: #5A6B85; }
+  .badge-income { background-color: #DDF3E8; color: #13703F; }
+  .badge-expense { background-color: #FBE3E3; color: #B32B2B; }
+  .badge-cat { background-color: #E1EAF8; color: #4C5D78; }
 
   .modal-overlay {
     position: fixed; inset: 0;
@@ -166,8 +166,8 @@
     transition: border-color .15s ease, background-color .15s ease;
   }
   .quiz-option:hover { border-color: #1F4FD8; }
-  .quiz-option.is-correct { background-color: #DDF3E8; border-color: #1E8E5A; }
-  .quiz-option.is-wrong { background-color: #FBE3E3; border-color: #D64545; }
+  .quiz-option.is-correct { background-color: #DDF3E8; border-color: #13703F; }
+  .quiz-option.is-wrong { background-color: #FBE3E3; border-color: #B32B2B; }
   .quiz-option.is-disabled { pointer-events: none; opacity: 0.85; }
 
   /* --- Header --- */
@@ -212,8 +212,8 @@
   .stat-card::before {
     content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
   }
-  .stat-income::before  { background: #1E8E5A; }
-  .stat-expense::before { background: #D64545; }
+  .stat-income::before  { background: #13703F; }
+  .stat-expense::before { background: #B32B2B; }
   .stat-balance {
     background: linear-gradient(135deg, #1F4FD8, #12307F);
     border-color: #12307F;
@@ -239,8 +239,8 @@
   /* --- Baris daftar --- */
   .row-card { transition: box-shadow .15s ease, transform .15s ease; }
   .row-card:hover { box-shadow: 0 4px 14px -6px rgba(15,30,58,.3); }
-  .row-income  { border-left: 4px solid #1E8E5A; }
-  .row-expense { border-left: 4px solid #D64545; }
+  .row-income  { border-left: 4px solid #13703F; }
+  .row-expense { border-left: 4px solid #B32B2B; }
   .row-bookmark { border-left: 4px solid #F5A524; }
 
   .cat-tile {
@@ -250,8 +250,8 @@
     background: #E1EAF8; color: #1F4FD8;
     font-size: 1.15rem;
   }
-  .cat-tile.tile-income  { background: #DDF3E8; color: #1E8E5A; }
-  .cat-tile.tile-expense { background: #FBE3E3; color: #D64545; }
+  .cat-tile.tile-income  { background: #DDF3E8; color: #13703F; }
+  .cat-tile.tile-expense { background: #FBE3E3; color: #B32B2B; }
   .cat-tile.tile-letter {
     background: #1F4FD8; color: #EAF1FB;
     font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 1.05rem;
@@ -289,8 +289,8 @@
     font-weight: 700; font-size: .8rem;
     transition: background-color .15s ease, color .15s ease;
   }
-  .quiz-option.is-correct .quiz-letter { background: #1E8E5A; color: #FAFCFF; }
-  .quiz-option.is-wrong .quiz-letter   { background: #D64545; color: #FAFCFF; }
+  .quiz-option.is-correct .quiz-letter { background: #13703F; color: #FAFCFF; }
+  .quiz-option.is-wrong .quiz-letter   { background: #B32B2B; color: #FAFCFF; }
   #quiz-progress-bar { transition: width .35s ease; border-radius: 999px; }
 
   .quiz-hero-icon {
@@ -318,7 +318,7 @@
       <span class="logo-tile" aria-hidden="true"><i class="ti ti-briefcase text-2xl"></i></span>
       <div>
         <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">Ransel</h1>
-        <p class="text-xs sm:text-sm text-paper/70">Bawa semua yang penting: uang, tautan, dan kuis.</p>
+        <p class="text-xs sm:text-sm text-paper/90">Bawa semua yang penting: uang, tautan, dan kuis.</p>
       </div>
     </div>
   </header>
