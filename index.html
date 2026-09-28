@@ -45,8 +45,14 @@
 
 <style>
   :root { color-scheme: light; }
-  body { background-color: #F2EEDD; }
+  body {
+    background-color: #F2EEDD;
+    background-image: radial-gradient(#DAD3B9 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  :focus-visible { outline: 2px solid #C98A2C; outline-offset: 2px; }
 
+  /* --- Folder-tab navigation --- */
   .tab-btn {
     clip-path: polygon(6% 0%, 94% 0%, 100% 100%, 0% 100%);
     transition: transform .15s ease, background-color .15s ease;
@@ -58,7 +64,7 @@
   }
   .tab-btn[aria-selected="false"] {
     background-color: #E4DEC8;
-    color: #4F4A3F;
+    color: #4F4A3F; /* contrast ~6.5:1 (WCAG AA) */
   }
   .tab-btn[aria-selected="false"]:hover {
     background-color: #DAD3B9;
@@ -164,6 +170,141 @@
   .quiz-option.is-wrong { background-color: #F5E4E1; border-color: #B0483C; }
   .quiz-option.is-disabled { pointer-events: none; opacity: 0.85; }
 
+  /* --- Header --- */
+  .site-header {
+    background-image:
+      radial-gradient(circle at 12% 120%, rgba(201,138,44,.35), transparent 45%),
+      linear-gradient(135deg, #2F4858 0%, #1D2E38 100%);
+    border-bottom: 4px solid #C98A2C;
+  }
+  .logo-tile {
+    width: 3rem; height: 3rem;
+    display: grid; place-items: center;
+    background: #C98A2C;
+    color: #1D2E38;
+    border-radius: 0.75rem;
+    transform: rotate(-6deg);
+    box-shadow: 3px 3px 0 rgba(0,0,0,.25);
+  }
+
+  /* --- Panel dibungkus seperti kertas di atas laci --- */
+  .panel-shell {
+    box-shadow: 0 12px 30px -12px rgba(43, 38, 32, .25);
+  }
+  .panel-title { display: flex; align-items: center; gap: .6rem; }
+  .panel-title .title-icon {
+    width: 2.25rem; height: 2.25rem;
+    display: grid; place-items: center;
+    border-radius: .6rem;
+    background: #EDE9DA; color: #2F4858;
+    font-size: 1.15rem;
+  }
+
+  /* --- Kartu ringkasan --- */
+  .stat-card {
+    background-color: #FFFDF7;
+    border: 1px solid #E4DEC8;
+    border-radius: .75rem;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  }
+  .stat-income::before  { background: #3F6B4A; }
+  .stat-expense::before { background: #B0483C; }
+  .stat-balance {
+    background: linear-gradient(135deg, #2F4858, #1D2E38);
+    border-color: #1D2E38;
+    color: #FFFDF7;
+  }
+  .stat-balance::before { background: #C98A2C; }
+  .stat-balance .field-label { color: rgba(242,238,221,.75); }
+  .stat-icon { position: absolute; right: .75rem; top: .75rem; font-size: 1.5rem; opacity: .18; }
+
+  /* --- Tombol --- */
+  .btn { display: inline-flex; align-items: center; gap: .4rem; justify-content: center; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { box-shadow: 0 2px 0 #1D2E38; }
+  .btn-primary:hover { box-shadow: 0 3px 0 #1D2E38; transform: translateY(-1px); filter: none; }
+
+  /* --- Kartu form --- */
+  .form-card {
+    background-color: #FBF8EC;
+    border: 1px dashed #CFC7AA;
+    border-radius: .75rem;
+  }
+
+  /* --- Baris daftar --- */
+  .row-card { transition: box-shadow .15s ease, transform .15s ease; }
+  .row-card:hover { box-shadow: 0 4px 14px -6px rgba(43,38,32,.3); }
+  .row-income  { border-left: 4px solid #3F6B4A; }
+  .row-expense { border-left: 4px solid #B0483C; }
+  .row-bookmark { border-left: 4px solid #C98A2C; }
+
+  .cat-tile {
+    width: 2.5rem; height: 2.5rem; flex-shrink: 0;
+    display: grid; place-items: center;
+    border-radius: .6rem;
+    background: #EDE9DA; color: #2F4858;
+    font-size: 1.15rem;
+  }
+  .cat-tile.tile-income  { background: #E4EEE5; color: #3F6B4A; }
+  .cat-tile.tile-expense { background: #F5E4E1; color: #B0483C; }
+  .cat-tile.tile-letter {
+    background: #2F4858; color: #F2EEDD;
+    font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.05rem;
+  }
+
+  .icon-btn {
+    padding: .5rem; border-radius: .5rem; line-height: 1;
+    transition: background-color .15s ease;
+  }
+  .icon-btn:hover { background-color: #EDE9DA; }
+
+  .empty-state {
+    border: 2px dashed #D9D2BC;
+    border-radius: .75rem;
+    background: #FBF8EC;
+  }
+
+  /* --- Modal: muncul dengan animasi ringan --- */
+  .modal-overlay { backdrop-filter: blur(2px); }
+  .modal-overlay.is-open .modal-box { animation: modal-in .18s ease-out; }
+  @keyframes modal-in {
+    from { opacity: 0; transform: translateY(8px) scale(.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  .modal-box { box-shadow: 0 20px 50px -15px rgba(0,0,0,.45); }
+
+  /* --- Kuis --- */
+  .quiz-option { display: flex; align-items: center; gap: .75rem; }
+  .quiz-option:hover { border-color: #2F4858; background-color: #FBF8EC; }
+  .quiz-letter {
+    width: 1.9rem; height: 1.9rem; flex-shrink: 0;
+    display: grid; place-items: center;
+    border-radius: 999px;
+    background: #EDE9DA; color: #2F4858;
+    font-weight: 700; font-size: .8rem;
+    transition: background-color .15s ease, color .15s ease;
+  }
+  .quiz-option.is-correct .quiz-letter { background: #3F6B4A; color: #FFFDF7; }
+  .quiz-option.is-wrong .quiz-letter   { background: #B0483C; color: #FFFDF7; }
+  #quiz-progress-bar { transition: width .35s ease; border-radius: 999px; }
+
+  .quiz-hero-icon {
+    width: 4rem; height: 4rem; margin: 0 auto .75rem;
+    display: grid; place-items: center;
+    border-radius: 1rem;
+    background: #EDE9DA; color: #2F4858;
+    font-size: 2rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-thumb { background-color: #D9D2BC; border-radius: 4px; }
 </style>
@@ -172,9 +313,9 @@
 <body class="font-body text-ink min-h-screen flex flex-col">
 
   <!-- ============ HEADER ============ -->
-  <header class="bg-brand text-paper">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-5 flex items-center gap-3">
-      <i class="ti ti-archive text-3xl text-gold" aria-hidden="true"></i>
+  <header class="site-header text-paper">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex items-center gap-4">
+      <span class="logo-tile" aria-hidden="true"><i class="ti ti-archive text-2xl"></i></span>
       <div>
         <h1 class="font-display text-2xl sm:text-3xl font-semibold leading-tight">LaciKu</h1>
         <p class="text-xs sm:text-sm text-paper/70">Satu laci, tiga catatan: keuangan, tautan, dan kuis.</p>
@@ -182,7 +323,7 @@
     </div>
   </header>
 
-  <!-- ============ NAV TAB ============ -->
+  <!-- ============ NAV TAB (folder style) ============ -->
   <nav class="max-w-5xl mx-auto w-full px-4 sm:px-6 pt-4" aria-label="Navigasi fitur">
     <div class="flex gap-1" role="tablist">
       <button
@@ -194,7 +335,8 @@
         aria-selected="false"
       >
         <i class="ti ti-wallet" aria-hidden="true"></i>
-        <span>Pengeluaran</span>
+        <span class="hidden xs:inline sm:inline">Pengeluaran</span>
+        <span class="xs:hidden sm:hidden">Uang</span>
       </button>
       <button
         type="button"
@@ -224,29 +366,36 @@
   <!-- ============ MAIN ============ -->
   <main class="flex-1 w-full">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
-      <div class="bg-surface border border-[#E4DEC8] rounded-b-lg rounded-tr-lg p-4 sm:p-6">
+      <div class="panel-shell bg-surface border border-[#E4DEC8] rounded-b-xl rounded-tr-xl p-4 sm:p-6">
 
-        <!-- PANEL 1: EXPENSE -->
+        <!-- ============================================================ -->
+        <!-- PANEL 1: EXPENSE TRACKER                                      -->
+        <!-- ============================================================ -->
         <section id="panel-expense" class="panel" role="tabpanel" aria-labelledby="tab-btn-expense">
-          <h2 class="font-display text-xl font-semibold mb-1">Catatan Pengeluaran Harian</h2>
+          <h2 class="panel-title font-display text-xl font-semibold mb-1"><span class="title-icon" aria-hidden="true"><i class="ti ti-wallet"></i></span>Catatan Pengeluaran Harian</h2>
           <p class="text-sm text-inkmuted mb-5">Catat pemasukan dan pengeluaran harianmu, lalu pantau saldonya.</p>
 
+          <!-- Ringkasan -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-            <div class="row-card p-4">
+            <div class="stat-card stat-income">
+              <i class="ti ti-trending-up stat-icon" aria-hidden="true"></i>
               <p class="field-label">Total Pemasukan</p>
               <p id="expense-total-income" class="font-display text-xl font-semibold text-leaf mt-1">Rp 0</p>
             </div>
-            <div class="row-card p-4">
+            <div class="stat-card stat-expense">
+              <i class="ti ti-trending-down stat-icon" aria-hidden="true"></i>
               <p class="field-label">Total Pengeluaran</p>
               <p id="expense-total-expense" class="font-display text-xl font-semibold text-rust mt-1">Rp 0</p>
             </div>
-            <div class="row-card p-4">
+            <div class="stat-card stat-balance">
+              <i class="ti ti-coin stat-icon" aria-hidden="true"></i>
               <p class="field-label">Saldo</p>
-              <p id="expense-balance" class="font-display text-xl font-semibold text-brand mt-1">Rp 0</p>
+              <p id="expense-balance" class="font-display text-2xl font-semibold text-paper mt-1">Rp 0</p>
             </div>
           </div>
 
-          <form id="expense-form" novalidate class="row-card p-4 mb-6">
+          <!-- Form tambah transaksi -->
+          <form id="expense-form" novalidate class="form-card p-4 mb-6">
             <h3 class="font-semibold text-sm mb-3">Tambah Transaksi</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -292,6 +441,7 @@
             </div>
           </form>
 
+          <!-- Pencarian & filter -->
           <div class="flex flex-col sm:flex-row gap-3 mb-4">
             <div class="flex-1">
               <input id="expense-search" type="text" class="input-base" placeholder="Cari berdasarkan judul..." aria-label="Cari transaksi berdasarkan judul" />
@@ -320,19 +470,23 @@
             </select>
           </div>
 
+          <!-- Daftar transaksi -->
           <div id="expense-list" class="space-y-2"></div>
-          <div id="expense-empty" class="hidden text-center py-10 text-inkmuted">
+          <div id="expense-empty" class="empty-state hidden text-center py-10 text-inkmuted">
             <i class="ti ti-file-off text-3xl mb-2 block" aria-hidden="true"></i>
             Belum ada transaksi. Tambahkan transaksi pertamamu di atas.
           </div>
         </section>
 
-        <!-- PANEL 2: BOOKMARK -->
+        <!-- ============================================================ -->
+        <!-- PANEL 2: BOOKMARK MANAGER                                     -->
+        <!-- ============================================================ -->
         <section id="panel-bookmark" class="panel" role="tabpanel" aria-labelledby="tab-btn-bookmark">
-          <h2 class="font-display text-xl font-semibold mb-1">Bookmark / Link Manager</h2>
+          <h2 class="panel-title font-display text-xl font-semibold mb-1"><span class="title-icon" aria-hidden="true"><i class="ti ti-bookmarks"></i></span>Bookmark / Link Manager</h2>
           <p class="text-sm text-inkmuted mb-5">Simpan tautan favoritmu lengkap dengan kategori dan catatan singkat.</p>
 
-          <form id="bookmark-form" novalidate class="row-card p-4 mb-6">
+          <!-- Form tambah bookmark -->
+          <form id="bookmark-form" novalidate class="form-card p-4 mb-6">
             <h3 class="font-semibold text-sm mb-3">Tambah Bookmark</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -362,6 +516,7 @@
             </div>
           </form>
 
+          <!-- Pencarian & sorting -->
           <div class="flex flex-col sm:flex-row gap-3 mb-4">
             <div class="flex-1">
               <input id="bookmark-search" type="text" class="input-base" placeholder="Cari nama, URL, atau kategori..." aria-label="Cari bookmark berdasarkan nama, URL, atau kategori" />
@@ -373,16 +528,19 @@
             </select>
           </div>
 
+          <!-- Daftar bookmark -->
           <div id="bookmark-list" class="space-y-2"></div>
-          <div id="bookmark-empty" class="hidden text-center py-10 text-inkmuted">
+          <div id="bookmark-empty" class="empty-state hidden text-center py-10 text-inkmuted">
             <i class="ti ti-bookmark-off text-3xl mb-2 block" aria-hidden="true"></i>
             Belum ada bookmark tersimpan. Tambahkan tautan pertamamu di atas.
           </div>
         </section>
 
-        <!-- PANEL 3: QUIZ -->
+        <!-- ============================================================ -->
+        <!-- PANEL 3: QUIZ APP                                             -->
+        <!-- ============================================================ -->
         <section id="panel-quiz" class="panel" role="tabpanel" aria-labelledby="tab-btn-quiz">
-          <h2 class="font-display text-xl font-semibold mb-1">Kuis Interaktif</h2>
+          <h2 class="panel-title font-display text-xl font-semibold mb-1"><span class="title-icon" aria-hidden="true"><i class="ti ti-help-hexagon"></i></span>Kuis Interaktif</h2>
           <p class="text-sm text-inkmuted mb-5">Uji pemahaman dasar web-mu lewat enam pertanyaan singkat.</p>
 
           <div class="row-card p-4 mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -392,8 +550,9 @@
             </div>
           </div>
 
-          <div id="quiz-start-screen" class="row-card p-8 text-center">
-            <i class="ti ti-help-hexagon text-4xl text-brand mb-3 block" aria-hidden="true"></i>
+          <!-- Layar mulai -->
+          <div id="quiz-start-screen" class="row-card p-8 text-center" style="border-radius:.75rem">
+            <div class="quiz-hero-icon" aria-hidden="true"><i class="ti ti-bulb"></i></div>
             <h3 class="font-display text-lg font-semibold mb-2">Siap menguji pemahamanmu?</h3>
             <p class="text-sm text-inkmuted mb-4">Kuis terdiri dari 6 soal pilihan ganda seputar dasar web.</p>
             <button id="quiz-start-btn" type="button" class="btn btn-primary">
@@ -401,6 +560,7 @@
             </button>
           </div>
 
+          <!-- Layar soal -->
           <div id="quiz-question-screen" class="hidden">
             <div class="flex items-center justify-between mb-3 text-sm text-inkmuted">
               <span>Soal <span id="quiz-current-number">1</span> dari <span id="quiz-total-number">6</span></span>
@@ -419,6 +579,7 @@
             </button>
           </div>
 
+          <!-- Layar hasil -->
           <div id="quiz-result-screen" class="hidden row-card p-8 text-center">
             <i class="ti ti-confetti text-4xl text-gold mb-3 block" aria-hidden="true"></i>
             <h3 class="font-display text-lg font-semibold mb-2">Kuis Selesai!</h3>
@@ -443,7 +604,9 @@
     </div>
   </footer>
 
-  <!-- MODAL: EXPENSE EDIT -->
+  <!-- ============================================================ -->
+  <!-- MODAL: UBAH TRANSAKSI (Expense)                                -->
+  <!-- ============================================================ -->
   <div id="expense-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="expense-modal-title">
     <div class="modal-box">
       <h3 id="expense-modal-title" class="font-display text-lg font-semibold mb-4">Ubah Transaksi</h3>
@@ -494,11 +657,14 @@
     </div>
   </div>
 
-  <!-- MODAL: EXPENSE DELETE -->
+  <!-- ============================================================ -->
+  <!-- MODAL: HAPUS TRANSAKSI (Expense) - konfirmasi                  -->
+  <!-- ============================================================ -->
   <div id="expense-delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="expense-delete-title">
     <div class="modal-box max-w-sm">
       <h3 id="expense-delete-title" class="font-display text-lg font-semibold mb-2">Hapus Transaksi?</h3>
       <p class="text-sm text-inkmuted mb-5">Transaksi yang dihapus tidak dapat dikembalikan.</p>
+      <input type="hidden" id="expense-delete-id" />
       <div class="flex gap-2 justify-end">
         <button type="button" class="btn btn-ghost" data-close-modal="expense-delete-modal">Batal</button>
         <button type="button" id="expense-delete-confirm-btn" class="btn btn-danger">Hapus</button>
@@ -506,7 +672,9 @@
     </div>
   </div>
 
-  <!-- MODAL: BOOKMARK EDIT -->
+  <!-- ============================================================ -->
+  <!-- MODAL: UBAH BOOKMARK                                          -->
+  <!-- ============================================================ -->
   <div id="bookmark-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="bookmark-modal-title">
     <div class="modal-box">
       <h3 id="bookmark-modal-title" class="font-display text-lg font-semibold mb-4">Ubah Bookmark</h3>
@@ -541,11 +709,14 @@
     </div>
   </div>
 
-  <!-- MODAL: BOOKMARK DELETE -->
+  <!-- ============================================================ -->
+  <!-- MODAL: HAPUS BOOKMARK - konfirmasi                             -->
+  <!-- ============================================================ -->
   <div id="bookmark-delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="bookmark-delete-title">
     <div class="modal-box max-w-sm">
       <h3 id="bookmark-delete-title" class="font-display text-lg font-semibold mb-2">Hapus Bookmark?</h3>
       <p class="text-sm text-inkmuted mb-5">Bookmark yang dihapus tidak dapat dikembalikan.</p>
+      <input type="hidden" id="bookmark-delete-id" />
       <div class="flex gap-2 justify-end">
         <button type="button" class="btn btn-ghost" data-close-modal="bookmark-delete-modal">Batal</button>
         <button type="button" id="bookmark-delete-confirm-btn" class="btn btn-danger">Hapus</button>
