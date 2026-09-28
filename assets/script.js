@@ -1,7 +1,7 @@
 'use strict';
 
 /* ============================================================================
-   LaciKu — assets/script.js
+   Ransel — assets/script.js
    Studi kasus PABWE P3
 
    Struktur file:
@@ -19,9 +19,9 @@
 
 // Key localStorage dipisah per fitur agar data tidak saling menimpa
 const STORAGE_KEYS = {
-  EXPENSE: 'laciku_expenses_v1',
-  BOOKMARK: 'laciku_bookmarks_v1',
-  QUIZ_HIGHSCORE: 'laciku_quiz_highscore_v1',
+  EXPENSE: 'ransel_expenses_v1',
+  BOOKMARK: 'ransel_bookmarks_v1',
+  QUIZ_HIGHSCORE: 'ransel_quiz_highscore_v1',
 };
 
 /**

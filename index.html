@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="LaciKu — catatan pengeluaran harian, bookmark tautan favorit, dan kuis interaktif dalam satu halaman." />
-<title>LaciKu — Catatan, Tautan &amp; Kuis</title>
+<meta name="description" content="Ransel — catatan pengeluaran harian, bookmark tautan favorit, dan kuis interaktif dalam satu halaman." />
+<title>Ransel — Catatan, Tautan &amp; Kuis</title>
 
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
 <!-- Tabler Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
@@ -21,22 +21,22 @@
     theme: {
       extend: {
         colors: {
-          paper: '#F2EEDD',
-          surface: '#FFFDF7',
-          ink: '#2B2620',
-          inkmuted: '#6B6355',
+          paper: '#EAF1FB',
+          surface: '#FAFCFF',
+          ink: '#0F1E3A',
+          inkmuted: '#5A6B85',
           brand: {
-            DEFAULT: '#2F4858',
-            dark: '#1D2E38',
-            light: '#4A6A7C',
+            DEFAULT: '#1F4FD8',
+            dark: '#12307F',
+            light: '#4A78E8',
           },
-          gold: '#C98A2C',
-          leaf: '#3F6B4A',
-          rust: '#B0483C',
+          gold: '#F5A524',
+          leaf: '#1E8E5A',
+          rust: '#D64545',
         },
         fontFamily: {
-          display: ['Fraunces', 'serif'],
-          body: ['Work Sans', 'sans-serif'],
+          display: ['Bricolage Grotesque', 'system-ui', 'sans-serif'],
+          body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         },
       },
     },
@@ -46,11 +46,11 @@
 <style>
   :root { color-scheme: light; }
   body {
-    background-color: #F2EEDD;
-    background-image: radial-gradient(#DAD3B9 1px, transparent 1px);
+    background-color: #EAF1FB;
+    background-image: radial-gradient(#C4D5F0 1px, transparent 1px);
     background-size: 22px 22px;
   }
-  :focus-visible { outline: 2px solid #C98A2C; outline-offset: 2px; }
+  :focus-visible { outline: 2px solid #F5A524; outline-offset: 2px; }
 
   /* --- Folder-tab navigation --- */
   .tab-btn {
@@ -58,17 +58,17 @@
     transition: transform .15s ease, background-color .15s ease;
   }
   .tab-btn[aria-selected="true"] {
-    background-color: #FFFDF7;
-    color: #2B2620;
+    background-color: #FAFCFF;
+    color: #0F1E3A;
     transform: translateY(-2px);
   }
   .tab-btn[aria-selected="false"] {
-    background-color: #E4DEC8;
-    color: #4F4A3F; /* contrast ~6.5:1 (WCAG AA) */
+    background-color: #D3E0F5;
+    color: #34496B; /* contrast ~6.5:1 (WCAG AA) */
   }
   .tab-btn[aria-selected="false"]:hover {
-    background-color: #DAD3B9;
-    color: #2B2620;
+    background-color: #C4D5F0;
+    color: #0F1E3A;
   }
 
   .panel { display: none; }
@@ -77,28 +77,28 @@
   .field-label {
     font-size: 0.8rem;
     font-weight: 600;
-    color: #6B6355;
+    color: #5A6B85;
   }
 
   .input-base {
-    background-color: #FFFDF7;
-    border: 1px solid #D9D2BC;
+    background-color: #FAFCFF;
+    border: 1px solid #BFD0EC;
     border-radius: 0.375rem;
     padding: 0.55rem 0.75rem;
     width: 100%;
     font-size: 0.9rem;
-    color: #2B2620;
+    color: #0F1E3A;
   }
   .input-base:focus {
-    outline: 2px solid #2F4858;
+    outline: 2px solid #1F4FD8;
     outline-offset: 1px;
-    border-color: #2F4858;
+    border-color: #1F4FD8;
   }
   .input-base.input-error {
-    border-color: #B0483C;
+    border-color: #D64545;
   }
   .error-text {
-    color: #B0483C;
+    color: #D64545;
     font-size: 0.75rem;
     margin-top: 0.15rem;
     min-height: 1rem;
@@ -112,14 +112,14 @@
     transition: filter .15s ease;
   }
   .btn:hover { filter: brightness(1.08); }
-  .btn-primary { background-color: #2F4858; color: #FFFDF7; }
-  .btn-ghost { background-color: transparent; color: #2F4858; border: 1px solid #2F4858; }
-  .btn-danger { background-color: #B0483C; color: #FFFDF7; }
-  .btn-gold { background-color: #C98A2C; color: #FFFDF7; }
+  .btn-primary { background-color: #1F4FD8; color: #FAFCFF; }
+  .btn-ghost { background-color: transparent; color: #1F4FD8; border: 1px solid #1F4FD8; }
+  .btn-danger { background-color: #D64545; color: #FAFCFF; }
+  .btn-gold { background-color: #F5A524; color: #0F1E3A; }
 
   .row-card {
-    background-color: #FFFDF7;
-    border: 1px solid #E4DEC8;
+    background-color: #FAFCFF;
+    border: 1px solid #D3E0F5;
     border-radius: 0.5rem;
   }
 
@@ -132,13 +132,13 @@
     padding: 0.15rem 0.55rem;
     border-radius: 999px;
   }
-  .badge-income { background-color: #E4EEE5; color: #3F6B4A; }
-  .badge-expense { background-color: #F5E4E1; color: #B0483C; }
-  .badge-cat { background-color: #EDE9DA; color: #6B6355; }
+  .badge-income { background-color: #DDF3E8; color: #1E8E5A; }
+  .badge-expense { background-color: #FBE3E3; color: #D64545; }
+  .badge-cat { background-color: #E1EAF8; color: #5A6B85; }
 
   .modal-overlay {
     position: fixed; inset: 0;
-    background-color: rgba(43, 38, 32, 0.55);
+    background-color: rgba(15, 30, 58, 0.55);
     display: none;
     align-items: center;
     justify-content: center;
@@ -148,7 +148,7 @@
   .modal-overlay.is-open { display: flex; }
 
   .modal-box {
-    background-color: #FFFDF7;
+    background-color: #FAFCFF;
     border-radius: 0.6rem;
     width: 100%;
     max-width: 28rem;
@@ -158,52 +158,52 @@
   }
 
   .quiz-option {
-    background-color: #FFFDF7;
-    border: 1px solid #D9D2BC;
+    background-color: #FAFCFF;
+    border: 1px solid #BFD0EC;
     border-radius: 0.5rem;
     padding: 0.85rem 1rem;
     cursor: pointer;
     transition: border-color .15s ease, background-color .15s ease;
   }
-  .quiz-option:hover { border-color: #2F4858; }
-  .quiz-option.is-correct { background-color: #E4EEE5; border-color: #3F6B4A; }
-  .quiz-option.is-wrong { background-color: #F5E4E1; border-color: #B0483C; }
+  .quiz-option:hover { border-color: #1F4FD8; }
+  .quiz-option.is-correct { background-color: #DDF3E8; border-color: #1E8E5A; }
+  .quiz-option.is-wrong { background-color: #FBE3E3; border-color: #D64545; }
   .quiz-option.is-disabled { pointer-events: none; opacity: 0.85; }
 
   /* --- Header --- */
   .site-header {
     background-image:
-      radial-gradient(circle at 12% 120%, rgba(201,138,44,.35), transparent 45%),
-      linear-gradient(135deg, #2F4858 0%, #1D2E38 100%);
-    border-bottom: 4px solid #C98A2C;
+      radial-gradient(circle at 12% 120%, rgba(245,165,36,.35), transparent 45%),
+      linear-gradient(135deg, #1F4FD8 0%, #12307F 100%);
+    border-bottom: 4px solid #F5A524;
   }
   .logo-tile {
     width: 3rem; height: 3rem;
     display: grid; place-items: center;
-    background: #C98A2C;
-    color: #1D2E38;
+    background: #F5A524;
+    color: #12307F;
     border-radius: 0.75rem;
     transform: rotate(-6deg);
     box-shadow: 3px 3px 0 rgba(0,0,0,.25);
   }
 
-  /* --- Panel dibungkus seperti kertas di atas laci --- */
+  /* --- Panel dibungkus seperti kertas di atas meja --- */
   .panel-shell {
-    box-shadow: 0 12px 30px -12px rgba(43, 38, 32, .25);
+    box-shadow: 0 12px 30px -12px rgba(15, 30, 58, .25);
   }
   .panel-title { display: flex; align-items: center; gap: .6rem; }
   .panel-title .title-icon {
     width: 2.25rem; height: 2.25rem;
     display: grid; place-items: center;
     border-radius: .6rem;
-    background: #EDE9DA; color: #2F4858;
+    background: #E1EAF8; color: #1F4FD8;
     font-size: 1.15rem;
   }
 
   /* --- Kartu ringkasan --- */
   .stat-card {
-    background-color: #FFFDF7;
-    border: 1px solid #E4DEC8;
+    background-color: #FAFCFF;
+    border: 1px solid #D3E0F5;
     border-radius: .75rem;
     padding: 1rem;
     position: relative;
@@ -212,61 +212,61 @@
   .stat-card::before {
     content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
   }
-  .stat-income::before  { background: #3F6B4A; }
-  .stat-expense::before { background: #B0483C; }
+  .stat-income::before  { background: #1E8E5A; }
+  .stat-expense::before { background: #D64545; }
   .stat-balance {
-    background: linear-gradient(135deg, #2F4858, #1D2E38);
-    border-color: #1D2E38;
-    color: #FFFDF7;
+    background: linear-gradient(135deg, #1F4FD8, #12307F);
+    border-color: #12307F;
+    color: #FAFCFF;
   }
-  .stat-balance::before { background: #C98A2C; }
-  .stat-balance .field-label { color: rgba(242,238,221,.75); }
+  .stat-balance::before { background: #F5A524; }
+  .stat-balance .field-label { color: rgba(234,241,251,.75); }
   .stat-icon { position: absolute; right: .75rem; top: .75rem; font-size: 1.5rem; opacity: .18; }
 
   /* --- Tombol --- */
   .btn { display: inline-flex; align-items: center; gap: .4rem; justify-content: center; }
   .btn:active { transform: translateY(1px); }
-  .btn-primary { box-shadow: 0 2px 0 #1D2E38; }
-  .btn-primary:hover { box-shadow: 0 3px 0 #1D2E38; transform: translateY(-1px); filter: none; }
+  .btn-primary { box-shadow: 0 2px 0 #12307F; }
+  .btn-primary:hover { box-shadow: 0 3px 0 #12307F; transform: translateY(-1px); filter: none; }
 
   /* --- Kartu form --- */
   .form-card {
-    background-color: #FBF8EC;
-    border: 1px dashed #CFC7AA;
+    background-color: #F1F6FE;
+    border: 1px dashed #B3C7E8;
     border-radius: .75rem;
   }
 
   /* --- Baris daftar --- */
   .row-card { transition: box-shadow .15s ease, transform .15s ease; }
-  .row-card:hover { box-shadow: 0 4px 14px -6px rgba(43,38,32,.3); }
-  .row-income  { border-left: 4px solid #3F6B4A; }
-  .row-expense { border-left: 4px solid #B0483C; }
-  .row-bookmark { border-left: 4px solid #C98A2C; }
+  .row-card:hover { box-shadow: 0 4px 14px -6px rgba(15,30,58,.3); }
+  .row-income  { border-left: 4px solid #1E8E5A; }
+  .row-expense { border-left: 4px solid #D64545; }
+  .row-bookmark { border-left: 4px solid #F5A524; }
 
   .cat-tile {
     width: 2.5rem; height: 2.5rem; flex-shrink: 0;
     display: grid; place-items: center;
     border-radius: .6rem;
-    background: #EDE9DA; color: #2F4858;
+    background: #E1EAF8; color: #1F4FD8;
     font-size: 1.15rem;
   }
-  .cat-tile.tile-income  { background: #E4EEE5; color: #3F6B4A; }
-  .cat-tile.tile-expense { background: #F5E4E1; color: #B0483C; }
+  .cat-tile.tile-income  { background: #DDF3E8; color: #1E8E5A; }
+  .cat-tile.tile-expense { background: #FBE3E3; color: #D64545; }
   .cat-tile.tile-letter {
-    background: #2F4858; color: #F2EEDD;
-    font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.05rem;
+    background: #1F4FD8; color: #EAF1FB;
+    font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 1.05rem;
   }
 
   .icon-btn {
     padding: .5rem; border-radius: .5rem; line-height: 1;
     transition: background-color .15s ease;
   }
-  .icon-btn:hover { background-color: #EDE9DA; }
+  .icon-btn:hover { background-color: #E1EAF8; }
 
   .empty-state {
-    border: 2px dashed #D9D2BC;
+    border: 2px dashed #BFD0EC;
     border-radius: .75rem;
-    background: #FBF8EC;
+    background: #F1F6FE;
   }
 
   /* --- Modal: muncul dengan animasi ringan --- */
@@ -280,24 +280,24 @@
 
   /* --- Kuis --- */
   .quiz-option { display: flex; align-items: center; gap: .75rem; }
-  .quiz-option:hover { border-color: #2F4858; background-color: #FBF8EC; }
+  .quiz-option:hover { border-color: #1F4FD8; background-color: #F1F6FE; }
   .quiz-letter {
     width: 1.9rem; height: 1.9rem; flex-shrink: 0;
     display: grid; place-items: center;
     border-radius: 999px;
-    background: #EDE9DA; color: #2F4858;
+    background: #E1EAF8; color: #1F4FD8;
     font-weight: 700; font-size: .8rem;
     transition: background-color .15s ease, color .15s ease;
   }
-  .quiz-option.is-correct .quiz-letter { background: #3F6B4A; color: #FFFDF7; }
-  .quiz-option.is-wrong .quiz-letter   { background: #B0483C; color: #FFFDF7; }
+  .quiz-option.is-correct .quiz-letter { background: #1E8E5A; color: #FAFCFF; }
+  .quiz-option.is-wrong .quiz-letter   { background: #D64545; color: #FAFCFF; }
   #quiz-progress-bar { transition: width .35s ease; border-radius: 999px; }
 
   .quiz-hero-icon {
     width: 4rem; height: 4rem; margin: 0 auto .75rem;
     display: grid; place-items: center;
     border-radius: 1rem;
-    background: #EDE9DA; color: #2F4858;
+    background: #E1EAF8; color: #1F4FD8;
     font-size: 2rem;
   }
 
@@ -306,7 +306,7 @@
   }
 
   ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-thumb { background-color: #D9D2BC; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background-color: #BFD0EC; border-radius: 4px; }
 </style>
 </head>
 
@@ -315,10 +315,10 @@
   <!-- ============ HEADER ============ -->
   <header class="site-header text-paper">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex items-center gap-4">
-      <span class="logo-tile" aria-hidden="true"><i class="ti ti-archive text-2xl"></i></span>
+      <span class="logo-tile" aria-hidden="true"><i class="ti ti-briefcase text-2xl"></i></span>
       <div>
-        <h1 class="font-display text-2xl sm:text-3xl font-semibold leading-tight">LaciKu</h1>
-        <p class="text-xs sm:text-sm text-paper/70">Satu laci, tiga catatan: keuangan, tautan, dan kuis.</p>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight">Ransel</h1>
+        <p class="text-xs sm:text-sm text-paper/70">Bawa semua yang penting: uang, tautan, dan kuis.</p>
       </div>
     </div>
   </header>
@@ -366,7 +366,7 @@
   <!-- ============ MAIN ============ -->
   <main class="flex-1 w-full">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
-      <div class="panel-shell bg-surface border border-[#E4DEC8] rounded-b-xl rounded-tr-xl p-4 sm:p-6">
+      <div class="panel-shell bg-surface border border-[#D3E0F5] rounded-b-xl rounded-tr-xl p-4 sm:p-6">
 
         <!-- ============================================================ -->
         <!-- PANEL 1: EXPENSE TRACKER                                      -->
@@ -566,7 +566,7 @@
               <span>Soal <span id="quiz-current-number">1</span> dari <span id="quiz-total-number">6</span></span>
               <span>Skor: <strong id="quiz-current-score">0</strong></span>
             </div>
-            <div class="w-full h-1.5 bg-[#E4DEC8] rounded-full mb-5 overflow-hidden">
+            <div class="w-full h-1.5 bg-[#D3E0F5] rounded-full mb-5 overflow-hidden">
               <div id="quiz-progress-bar" class="h-full bg-gold" style="width: 0%"></div>
             </div>
             <div class="row-card p-5 mb-4">
@@ -600,7 +600,7 @@
   <!-- ============ FOOTER ============ -->
   <footer class="bg-brand-dark text-paper/70 text-xs">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center">
-      LaciKu — Studi Kasus PABWE P3. Dibuat dengan HTML, Tailwind CSS, dan JavaScript murni.
+      Ransel — Studi Kasus PABWE P3. Dibuat dengan HTML, Tailwind CSS, dan JavaScript murni.
     </div>
   </footer>
 
